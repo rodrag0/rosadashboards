@@ -152,10 +152,10 @@ function MonitorStage({
               <div className="match-demo__sponsor-logo">{sponsorMark}</div>
               <div>
                 <span className="match-demo__label">{t.sponsorPlacement}</span>
-                <strong>{setup.sponsorName || "Your club sponsor"}</strong>
+                <strong>{setup.sponsorName || t.defaultSponsorName}</strong>
               </div>
             </div>
-            <p>{setup.sponsorTagline || "Premium placement on QR and live monitor"}</p>
+            <p>{setup.sponsorTagline || t.defaultSponsorTagline}</p>
           </div>
 
           <div className="match-demo__qr-card">
@@ -192,7 +192,7 @@ function MonitorStage({
     const standings = setup.gameMode === "league" ? getLeagueStandings(match) : [];
     const champion =
       setup.gameMode === "league"
-        ? standings[0]?.player ?? "League leader"
+        ? standings[0]?.player ?? t.leagueLeader
         : match.winnerSide === 0
           ? `${setup.players[0]} / ${setup.players[1]}`
           : `${setup.players[2]} / ${setup.players[3]}`;
@@ -269,9 +269,9 @@ function MonitorStage({
         <div className="match-demo__summary-sponsor">
           <div className="match-demo__sponsor-lockup">
             <div className="match-demo__sponsor-logo match-demo__sponsor-logo--small">{sponsorMark}</div>
-            <span>{setup.sponsorName || "Your club sponsor"}</span>
+            <span>{setup.sponsorName || t.defaultSponsorName}</span>
           </div>
-          <small>{setup.sponsorTagline || "Premium placement on QR and live monitor"}</small>
+          <small>{setup.sponsorTagline || t.defaultSponsorTagline}</small>
         </div>
       </div>
     );
@@ -294,7 +294,7 @@ function MonitorStage({
 
       <div className="match-demo__scoreboard">
         <div className="match-demo__team match-demo__team--left">
-          <span className="match-demo__label">Left side</span>
+          <span className="match-demo__label">{t.leftSide}</span>
           <h2>{displayPairing.left}</h2>
           <strong className={`match-demo__point-value ${pointDisplay.starPoint ? "match-demo__point-value--star" : ""}`}>
             {pointDisplay.left}
@@ -333,7 +333,7 @@ function MonitorStage({
         </div>
 
         <div className="match-demo__team match-demo__team--right">
-          <span className="match-demo__label">Right side</span>
+          <span className="match-demo__label">{t.rightSide}</span>
           <h2>{displayPairing.right}</h2>
           <strong className={`match-demo__point-value ${pointDisplay.starPoint ? "match-demo__point-value--star" : ""}`}>
             {pointDisplay.right}
@@ -591,8 +591,8 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
     const normalizedSetup = {
       ...setup,
       players: normalizedPlayers,
-      sponsorName: setup.sponsorName.trim() || "Your club sponsor",
-      sponsorTagline: setup.sponsorTagline.trim() || "Premium placement on QR and live monitor",
+      sponsorName: setup.sponsorName.trim() || t.defaultSponsorName,
+      sponsorTagline: setup.sponsorTagline.trim() || t.defaultSponsorTagline,
       sponsorLogoText: setup.sponsorLogoText.trim() || buildSponsorMark(setup),
       eventName: setup.eventName.trim() || "ROSA pilot court demo",
       courtName: setup.courtName.trim() || "Court 02",
@@ -852,7 +852,7 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
                         <span>{index + 1}</span>
                         <strong>{entry.player}</strong>
                         <small>
-                          {entry.setsWon} sets | {entry.gamesWon}-{entry.gamesLost}
+                          {entry.setsWon} {t.setsLabel} | {entry.gamesWon}-{entry.gamesLost} {t.gamesLabel}
                         </small>
                       </div>
                     ))}
@@ -888,5 +888,6 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
     </main>
   );
 }
+
 
 

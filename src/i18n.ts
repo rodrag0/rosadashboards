@@ -156,6 +156,13 @@ export const translations = {
       sponsor: "Sponsor",
       sponsorTagline: "Sponsor tagline",
       sponsorLogo: "Sponsor logo text",
+      defaultSponsorName: "Your club sponsor",
+      defaultSponsorTagline: "Premium placement on QR and live monitor",
+      leftSide: "Left side",
+      rightSide: "Right side",
+      leagueLeader: "League leader",
+      setsLabel: "sets",
+      gamesLabel: "games",
       adminTitle: "Club admin settings",
       adminShow: "Show admin settings",
       adminHide: "Hide admin settings",
@@ -355,6 +362,13 @@ export const translations = {
       sponsor: "Sponsor",
       sponsorTagline: "Claim del sponsor",
       sponsorLogo: "Texto del logo",
+      defaultSponsorName: "Patrocinador del club",
+      defaultSponsorTagline: "Ubicación premium en QR y monitor en vivo",
+      leftSide: "Lado izquierdo",
+      rightSide: "Lado derecho",
+      leagueLeader: "Líder de la liga",
+      setsLabel: "sets",
+      gamesLabel: "juegos",
       adminTitle: "Ajustes de administración",
       adminShow: "Mostrar ajustes admin",
       adminHide: "Ocultar ajustes admin",
@@ -554,6 +568,13 @@ export const translations = {
       sponsor: "Sponsor",
       sponsorTagline: "Sponsor-Claim",
       sponsorLogo: "Logo-Text",
+      defaultSponsorName: "Ihr Club-Sponsor",
+      defaultSponsorTagline: "Premium-Platzierung auf QR und Live-Monitor",
+      leftSide: "Linke Seite",
+      rightSide: "Rechte Seite",
+      leagueLeader: "Tabellenführer",
+      setsLabel: "Sätze",
+      gamesLabel: "Spiele",
       adminTitle: "Club-Admin-Einstellungen",
       adminShow: "Admin-Einstellungen zeigen",
       adminHide: "Admin-Einstellungen ausblenden",
@@ -605,4 +626,5 @@ export const translations = {
 export function getTranslations(language: Language) {
   return translations[language];
 }
+
 
