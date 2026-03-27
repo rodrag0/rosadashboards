@@ -99,6 +99,19 @@ function SponsorGlyph({ id }: { id: string }) {
   );
 }
 
+function getPairLabel(players: MatchSetup["players"], pair: readonly [number, number]) {
+  return pair.map((index) => players[index]).join(" / ");
+}
+
+function abbreviateName(name: string) {
+  const firstToken = name.trim().split(/\s+/)[0] ?? name;
+  return firstToken.slice(0, 3).toUpperCase();
+}
+
+function getPairShortLabel(players: MatchSetup["players"], pair: readonly [number, number]) {
+  return pair.map((index) => abbreviateName(players[index])).join(" / ");
+}
+
 function getPreviewSchedule(setup: MatchSetup, t: ReturnType<typeof getTranslations>["matchDemo"]) {
   if (setup.gameMode !== "league") {
     return [
@@ -239,6 +252,23 @@ function MonitorStage({
 
   if (stage === "summary") {
     const standings = setup.gameMode === "league" ? getLeagueStandings(match) : [];
+    const setWins = match.sets.reduce(
+      (accumulator, set) => {
+        if (set.winner === 0) {
+          accumulator.left += 1;
+        } else if (set.winner === 1) {
+          accumulator.right += 1;
+        }
+        return accumulator;
+      },
+      { left: 0, right: 0 },
+    );
+    const fixedPairs = {
+      left: getPairLabel(setup.players, [0, 1]),
+      right: getPairLabel(setup.players, [2, 3]),
+      leftShort: getPairShortLabel(setup.players, [0, 1]),
+      rightShort: getPairShortLabel(setup.players, [2, 3]),
+    };
     const champion =
       setup.gameMode === "league"
         ? standings[0]?.player ?? t.leagueLeader
@@ -260,17 +290,54 @@ function MonitorStage({
         </div>
 
         <div className="match-demo__summary-grid">
-          <div className="match-demo__winner-card match-demo__winner-card--summary">
-            <div className="match-demo__sponsor-lockup">
-              <div className="match-demo__sponsor-logo">
-                <SponsorGlyph id={sponsorMark} />
-              </div>
+          <div className="match-demo__summary-scorecard">
+            <div className="match-demo__summary-scorecard-head">
               <div>
-                <span className="match-demo__label">{t.finishedMatch}</span>
-                <h2>{setup.gameMode === "league" ? t.leagueCompleteTitle : t.winningPairTitle}</h2>
+                <span className="match-demo__label">{setup.gameMode === "league" ? t.leagueLeader : t.finishedMatch}</span>
+                <h2>{setup.gameMode === "league" ? champion : `${fixedPairs.left} vs ${fixedPairs.right}`}</h2>
+              </div>
+              <div className="match-demo__summary-score-badge">
+                <strong>{setup.gameMode === "league" ? standings[0]?.setsWon ?? 0 : `${setWins.left}-${setWins.right}`}</strong>
+                <small>{t.setsLabel}</small>
               </div>
             </div>
-            <p>{setup.gameMode === "league" ? `${champion} leads the final league table.` : `${champion} closes the demo match on ${setup.courtName}.`}</p>
+
+            {setup.gameMode === "league" ? (
+              <div className="match-demo__summary-round-grid">
+                {match.sets.map((set, index) => (
+                  <div key={`summary-round-${index}`} className={`match-demo__summary-round-card ${set.winner === 0 ? "match-demo__summary-round-card--left" : set.winner === 1 ? "match-demo__summary-round-card--right" : ""}`}>
+                    <span>{[t.round1, t.round2, t.round3][index] ?? set.pairing.title}</span>
+                    <strong>{getPairShortLabel(setup.players, set.pairing.left)}</strong>
+                    <small>vs {getPairShortLabel(setup.players, set.pairing.right)}</small>
+                    <div className="match-demo__summary-round-score">
+                      <em>{set.left}</em>
+                      <em>{set.right}</em>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="match-demo__summary-score-grid">
+                <div className="match-demo__summary-score-head">
+                  <span />
+                  {match.sets.map((_, index) => (
+                    <span key={`summary-head-${index}`}>S{index + 1}</span>
+                  ))}
+                </div>
+                <div className={`match-demo__summary-score-row ${match.winnerSide === 0 ? "match-demo__summary-score-row--winner" : ""}`}>
+                  <strong>{fixedPairs.leftShort}</strong>
+                  {match.sets.map((set, index) => (
+                    <span key={`summary-left-${index}`}>{set.left}</span>
+                  ))}
+                </div>
+                <div className={`match-demo__summary-score-row ${match.winnerSide === 1 ? "match-demo__summary-score-row--winner" : ""}`}>
+                  <strong>{fixedPairs.rightShort}</strong>
+                  {match.sets.map((set, index) => (
+                    <span key={`summary-right-${index}`}>{set.right}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="match-demo__summary-kpis">
               <div>
@@ -278,24 +345,13 @@ function MonitorStage({
                 <strong>{elapsed}</strong>
               </div>
               <div>
-                <span>{t.upcomingFormat}</span>
+                <span>{t.formatLabel}</span>
                 <strong>{gameModeOptions.find((option) => option.value === setup.gameMode)?.label}</strong>
               </div>
               <div>
                 <span>{t.deuceModeLabel}</span>
                 <strong>{deuceLabel}</strong>
               </div>
-            </div>
-
-            <div className="match-demo__set-summary">
-              {match.sets.map((set, index) => (
-                <div key={`summary-set-${index}`} className="match-demo__set-card">
-                  <span>{set.pairing.title}</span>
-                  <strong>
-                    {set.left} - {set.right}
-                  </strong>
-                </div>
-              ))}
             </div>
           </div>
 

@@ -244,6 +244,7 @@
 .match-demo__sponsor-hero,
 .match-demo__qr-card,
 .match-demo__winner-card,
+.match-demo__summary-scorecard,
 .match-demo__team,
 .match-demo__center-panel {
   position: relative;
@@ -253,7 +254,8 @@
 }
 
 .match-demo__sponsor-hero,
-.match-demo__winner-card {
+.match-demo__winner-card,
+.match-demo__summary-scorecard {
   min-height: 360px;
   padding: 28px;
   background:
@@ -264,6 +266,7 @@
 
 .match-demo__sponsor-hero strong,
 .match-demo__winner-card h2,
+.match-demo__summary-scorecard h2,
 .match-demo__team strong,
 .match-demo__center-panel strong {
   display: block;
@@ -308,7 +311,8 @@
 .match-demo__team span,
 .match-demo__status-row span,
 .match-demo__panel-copy p,
-.match-demo__winner-card p {
+.match-demo__winner-card p,
+.match-demo__summary-scorecard p {
   color: #68707f;
 }
 
@@ -319,6 +323,169 @@
 
 .match-demo__qr-card--summary {
   min-height: 280px;
+}
+
+.match-demo__summary-scorecard {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+.match-demo__summary-scorecard .match-demo__label {
+  color: rgba(244, 245, 247, 0.68);
+}
+
+.match-demo__summary-scorecard-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.match-demo__summary-scorecard-head h2 {
+  margin-top: 10px;
+  font-size: clamp(1.65rem, 3vw, 2.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  max-width: 14ch;
+}
+
+.match-demo__summary-score-badge {
+  display: grid;
+  place-items: center;
+  min-width: 92px;
+  min-height: 92px;
+  padding: 14px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 10, 140, 0.22);
+  background: linear-gradient(135deg, rgba(255, 10, 140, 0.16), rgba(255, 255, 255, 0.04));
+  text-align: center;
+}
+
+.match-demo__summary-score-badge strong {
+  font-size: 2rem;
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+}
+
+.match-demo__summary-score-badge small {
+  margin-top: 4px;
+  color: rgba(244, 245, 247, 0.68);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.match-demo__summary-score-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.match-demo__summary-score-head,
+.match-demo__summary-score-row {
+  display: grid;
+  grid-template-columns: minmax(112px, 1.35fr) repeat(3, minmax(0, 78px));
+  gap: 10px;
+  align-items: center;
+}
+
+.match-demo__summary-score-head span {
+  color: rgba(244, 245, 247, 0.56);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.match-demo__summary-score-row strong,
+.match-demo__summary-score-row span {
+  display: grid;
+  min-height: 58px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.match-demo__summary-score-row strong {
+  place-items: center start;
+  padding: 0 16px;
+  font-size: 0.94rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.match-demo__summary-score-row span {
+  place-items: center;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.match-demo__summary-score-row--winner strong,
+.match-demo__summary-score-row--winner span {
+  border-color: rgba(255, 10, 140, 0.16);
+  background: linear-gradient(135deg, rgba(255, 10, 140, 0.16), rgba(255, 255, 255, 0.06));
+}
+
+.match-demo__summary-round-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.match-demo__summary-round-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.match-demo__summary-round-card span,
+.match-demo__summary-round-card small {
+  color: rgba(244, 245, 247, 0.68);
+}
+
+.match-demo__summary-round-card span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.match-demo__summary-round-card strong {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.match-demo__summary-round-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.match-demo__summary-round-score em {
+  display: grid;
+  place-items: center;
+  min-height: 50px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff8fc;
+  font-style: normal;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.match-demo__summary-round-card--left em:first-child,
+.match-demo__summary-round-card--right em:last-child {
+  border-color: rgba(255, 10, 140, 0.16);
+  background: linear-gradient(135deg, rgba(255, 10, 140, 0.16), rgba(255, 255, 255, 0.06));
 }
 
 .match-demo__monitor-footer {

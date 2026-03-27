@@ -621,6 +621,7 @@ button {
 }
 
 .highlight-preview {
+  position: relative;
   display: grid;
   gap: 14px;
   min-height: 138px;
@@ -643,7 +644,7 @@ button {
 .highlight-preview-topline,
 .highlight-preview-body {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
 }
@@ -659,21 +660,37 @@ button {
   margin-top: auto;
 }
 
+.highlight-preview-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
 .highlight-preview-body strong {
   font-size: 1rem;
   letter-spacing: -0.03em;
 }
 
 .highlight-preview-play {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.24);
   color: white;
-  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.highlight-preview-play svg {
+  width: 22px;
+  height: 22px;
+  margin-left: 2px;
 }
 
 .highlight-preview-track {
@@ -1606,7 +1623,8 @@ button {
 }
 
 :root[data-theme="light"] .highlight-preview-play {
-  background: rgba(17, 20, 26, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(17, 20, 26, 0.08);
   color: #10141b;
 }
 

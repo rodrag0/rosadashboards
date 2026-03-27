@@ -370,10 +370,16 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
                     <span>{highlight.setLabel}</span>
                     <span>{highlight.duration}</span>
                   </div>
+                  <span className="highlight-preview-play" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M9 7.5 17 12l-8 4.5V7.5Z" fill="currentColor" />
+                    </svg>
+                  </span>
                   <div className="highlight-preview-body">
-                    <span className="highlight-preview-play">PLAY</span>
-                    <strong>{highlight.shot}</strong>
-                    <small>{t.postMatch.clipPreviewPlaceholder}</small>
+                    <div className="highlight-preview-copy">
+                      <strong>{highlight.shot}</strong>
+                      <small>{t.postMatch.clipPreviewPlaceholder}</small>
+                    </div>
                   </div>
                   <div className="highlight-preview-track">
                     <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
