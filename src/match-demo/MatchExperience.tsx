@@ -1,7 +1,9 @@
 ﻿import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import type { Language, Theme } from "../appTypes";
+import { LanguageSelect } from "../components/LanguageSelect";
 import { ShareIconButton } from "../components/ShareIconButton";
-import { getTranslations, languageOptions } from "../i18n";
+import { ThemeToggleButton } from "../components/ThemeToggleButton";
+import { getTranslations } from "../i18n";
 import { getDeuceOptions, getGameModeOptions, getSideChangeOptions, initialSetup, qrPattern, sponsorSuggestions } from "./demoConfig";
 import "./match-demo.css";
 import {
@@ -765,22 +767,14 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
         </a>
 
         <div className="topbar-controls">
-          <div className="segment-control" aria-label={messages.common.language}>
-            {languageOptions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                className={`segment-control__button ${language === option ? "segment-control__button--active" : ""}`}
-                onClick={() => setLanguage(option)}
-              >
-                {option.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="button secondary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? messages.common.light : messages.common.dark}
-          </button>
-          <a className="button secondary" href="/">
+          <LanguageSelect label={messages.common.language} value={language} onChange={setLanguage} />
+          <ThemeToggleButton
+            theme={theme}
+            label={messages.common.theme}
+            nextThemeLabel={theme === "dark" ? messages.common.light : messages.common.dark}
+            onToggle={() => setTheme(theme === "dark" ? "light" : "dark")}
+          />
+          <a className="button secondary topbar-route-link" href="/">
             {messages.common.openPostMatch}
           </a>
         </div>

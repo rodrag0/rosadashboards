@@ -1,12 +1,14 @@
 ﻿import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import type { Language, Theme } from "./appTypes";
 import { CourtHeatmap } from "./components/CourtHeatmap";
+import { LanguageSelect } from "./components/LanguageSelect";
 import { MomentumChart } from "./components/MomentumChart";
 import { PlayerCard } from "./components/PlayerCard";
 import { ShareIconButton } from "./components/ShareIconButton";
+import { ThemeToggleButton } from "./components/ThemeToggleButton";
 import { getMatchData, teamStyles } from "./data/demoMatch";
 import type { HighlightClip, HighlightFilter, PlayerProfile } from "./data/demoMatch";
-import { getTranslations, languageOptions } from "./i18n";
+import { getTranslations } from "./i18n";
 
 interface DashboardProps {
   language: Language;
@@ -141,22 +143,14 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
         </nav>
 
         <div className="topbar-controls">
-          <div className="segment-control" aria-label={t.common.language}>
-            {languageOptions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                className={`segment-control__button ${language === option ? "segment-control__button--active" : ""}`}
-                onClick={() => setLanguage(option)}
-              >
-                {option.toUpperCase()}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="button secondary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-            {theme === "dark" ? t.common.light : t.common.dark}
-          </button>
-          <a className="button secondary" href="/match-demo">
+          <LanguageSelect label={t.common.language} value={language} onChange={setLanguage} />
+          <ThemeToggleButton
+            theme={theme}
+            label={t.common.theme}
+            nextThemeLabel={theme === "dark" ? t.common.light : t.common.dark}
+            onToggle={() => setTheme(theme === "dark" ? "light" : "dark")}
+          />
+          <a className="button secondary topbar-route-link" href="/match-demo">
             {t.common.openLiveDemo}
           </a>
         </div>
