@@ -1177,6 +1177,8 @@ button {
     display: grid;
     grid-template-columns: 1fr;
     justify-items: flex-start;
+    gap: 16px;
+    padding: 14px 16px;
     border-radius: 28px;
   }
 
@@ -1217,20 +1219,63 @@ button {
     padding-top: 14px;
   }
 
+  .topbar {
+    top: 12px;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 24px;
+  }
+
   .panel {
     padding: 20px;
   }
 
   .brand-lockup {
-    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: nowrap;
   }
 
   .brand-wordmark {
-    width: 112px;
+    width: 98px;
+  }
+
+  .brand-lockup span {
+    font-size: 0.88rem;
+  }
+
+  .brand-lockup small {
+    display: none;
+  }
+
+  .topnav {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .topnav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .topnav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 8px 10px;
+    font-size: 0.76rem;
   }
 
   .section {
-    padding-top: 72px;
+    padding-top: 56px;
+  }
+
+  .section-copy h1 {
+    font-size: clamp(2.15rem, 11vw, 3.1rem);
   }
 
   .hero-copy p {
@@ -1262,6 +1307,40 @@ button {
   .footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+  
+  .topbar-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .topbar-controls .button.secondary,
+  .topbar-controls .button {
+    width: 100%;
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: 0.82rem;
+  }
+
+  .segment-control {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: space-between;
+    padding: 3px;
+  }
+
+  .segment-control__button {
+    min-height: 32px;
+    flex: 1;
+    padding: 0 8px;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+  }
+
+  .dashboard-hero {
+    padding-top: 44px;
   }
 }
 
@@ -1573,19 +1652,6 @@ button {
 }
 
 @media (max-width: 680px) {
-  .topbar-controls,
-  .segment-control {
-    width: 100%;
-  }
-
-  .segment-control {
-    justify-content: space-between;
-  }
-
-  .segment-control__button {
-    flex: 1;
-  }
-
   .dashboard-summary-strip,
   .player-mix {
     grid-template-columns: 1fr;

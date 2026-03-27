@@ -600,9 +600,13 @@ export function getDisplayPairing(state: MatchState) {
 
 export function getPointDisplay(state: MatchState) {
   if (state.inTiebreak || state.inSuperTiebreak) {
+    const tiebreakDisplay = state.sidesSwapped
+      ? { left: String(state.tiebreakRight), right: String(state.tiebreakLeft) }
+      : { left: String(state.tiebreakLeft), right: String(state.tiebreakRight) };
+
     return {
-      left: String(state.tiebreakLeft),
-      right: String(state.tiebreakRight),
+      left: tiebreakDisplay.left,
+      right: tiebreakDisplay.right,
       tiebreak: true,
       superTiebreak: state.inSuperTiebreak,
       starPoint: false,
@@ -621,9 +625,19 @@ export function getPointDisplay(state: MatchState) {
     };
   }
 
+  const regularDisplay = state.sidesSwapped
+    ? {
+        left: state.advRight ? "Ad" : pointLabel(state.pointsRight),
+        right: state.advLeft ? "Ad" : pointLabel(state.pointsLeft),
+      }
+    : {
+        left: state.advLeft ? "Ad" : pointLabel(state.pointsLeft),
+        right: state.advRight ? "Ad" : pointLabel(state.pointsRight),
+      };
+
   return {
-    left: state.advLeft ? "Ad" : pointLabel(state.pointsLeft),
-    right: state.advRight ? "Ad" : pointLabel(state.pointsRight),
+    left: regularDisplay.left,
+    right: regularDisplay.right,
     tiebreak: false,
     superTiebreak: false,
     starPoint: false,

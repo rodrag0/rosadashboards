@@ -1,5 +1,4 @@
 ﻿import type { Language } from "../appTypes";
-import { getTranslations } from "../i18n";
 import type { DeuceMode, GameMode, MatchSetup, SideChangeMode } from "./matchEngine";
 
 interface Option<T> {
@@ -9,33 +8,36 @@ interface Option<T> {
 }
 
 export function getGameModeOptions(language: Language): Option<GameMode>[] {
-  const t = getTranslations(language).matchDemo;
-
   return [
     {
       value: "normal",
       label: language === "es" ? "Partido normal" : language === "de" ? "Normales Match" : "Normal match",
       description:
         language === "es"
-          ? "Mejor de 3 sets completos con tiebreak estándar en 6-6."
+          ? "Al mejor de 3 sets."
           : language === "de"
-            ? "Best of 3 volle Sätze mit Standard-Tiebreak bei 6:6."
-            : "Best of 3 full sets with a standard tiebreak at 6-6.",
+            ? "Best of 3 Sätze."
+            : "Best of 3 sets.",
     },
     {
       value: "quick",
       label: language === "es" ? "Quick match" : language === "de" ? "Quick Match" : "Quick match",
-      description: t.quickModeNote,
+      description:
+        language === "es"
+          ? "2 sets y super tiebreak final."
+          : language === "de"
+            ? "2 Sätze, dann Super-Tiebreak."
+            : "2 sets, 3rd super tiebreak.",
     },
     {
       value: "league",
       label: language === "es" ? "Modo liga" : language === "de" ? "Liga-Modus" : "League mode",
       description:
         language === "es"
-          ? "Tres sets fijos con parejas rotativas para que todos jueguen con y contra todos."
+          ? "Parejas rotativas. ¿Quién es el mejor?"
           : language === "de"
-            ? "Drei feste Sätze mit rotierenden Paarungen, damit jeder mit und gegen jeden spielt."
-            : "Three fixed sets with rotating pairs so everyone plays with and against everyone.",
+            ? "Rotierende Partner. Wer ist der Beste?"
+            : "Rotating partners. Who is best?",
     },
   ];
 }
@@ -114,7 +116,7 @@ export const initialSetup: MatchSetup = {
   players: ["Rodrigo", "Omar", "Saul", "Memo"],
   sponsorName: "Club Partner",
   sponsorTagline: "Premium scoreboard branding space",
-  sponsorLogoText: "CP",
+  sponsorLogoText: "club",
   eventName: "ROSA Vision Exhibition Night",
   courtName: "Court 02",
 };
@@ -142,4 +144,5 @@ export const qrPattern: string[] = [
   "100000101001001011001",
   "111111101110111101111",
 ];
+
 

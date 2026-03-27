@@ -46,9 +46,57 @@ function formatElapsed(milliseconds: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+const sponsorLogoPresets = [
+  { id: "club", label: "Club" },
+  { id: "court", label: "Court" },
+  { id: "spark", label: "Spark" },
+  { id: "crown", label: "Crown" },
+] as const;
+
 function buildSponsorMark(setup: MatchSetup) {
-  const raw = (setup.sponsorLogoText || setup.sponsorName || "CL").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-  return raw.slice(0, 3) || "CL";
+  const candidate = setup.sponsorLogoText?.trim().toLowerCase();
+  return sponsorLogoPresets.find((preset) => preset.id === candidate)?.id ?? "club";
+}
+
+function SponsorGlyph({ id }: { id: string }) {
+  if (id === "court") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+        <rect x="8" y="8" width="48" height="48" rx="10" />
+        <path d="M32 8v48M8 32h48" />
+        <path d="M16 20h32M16 44h32" opacity="0.7" />
+      </svg>
+    );
+  }
+
+  if (id === "spark") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m32 8 6 15 18 3-13 11 4 18-15-9-15 9 4-18L8 26l18-3 6-15Z" />
+      </svg>
+    );
+  }
+
+  if (id === "crown") {
+    return (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 47 16 18l16 15 16-15 5 29Z" />
+        <path d="M11 47h42" />
+        <circle cx="16" cy="18" r="3" fill="currentColor" stroke="none" />
+        <circle cx="32" cy="33" r="3" fill="currentColor" stroke="none" />
+        <circle cx="48" cy="18" r="3" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 41c0-11 7-18 17-18h17" />
+      <path d="M49 23c0 11-7 18-17 18H15" />
+      <circle cx="15" cy="41" r="5" fill="currentColor" stroke="none" />
+      <circle cx="49" cy="23" r="5" fill="currentColor" stroke="none" />
+    </svg>
+  );
 }
 
 function getPreviewSchedule(setup: MatchSetup, t: ReturnType<typeof getTranslations>["matchDemo"]) {
@@ -149,14 +197,14 @@ function MonitorStage({
 
         <div className="match-demo__monitor-grid">
           <div className="match-demo__sponsor-hero">
-            <div className="match-demo__sponsor-lockup">
-              <div className="match-demo__sponsor-logo">{sponsorMark}</div>
-              <div>
-                <span className="match-demo__label">{t.sponsorPlacement}</span>
-                <strong>{setup.sponsorName || t.defaultSponsorName}</strong>
+            <span className="match-demo__label">{t.sponsorPlacement}</span>
+            <strong>{setup.sponsorName || t.defaultSponsorName}</strong>
+            <p>{setup.sponsorTagline || t.defaultSponsorTagline}</p>
+            <div className="match-demo__sponsor-hero-mark">
+              <div className="match-demo__sponsor-logo match-demo__sponsor-logo--hero">
+                <SponsorGlyph id={sponsorMark} />
               </div>
             </div>
-            <p>{setup.sponsorTagline || t.defaultSponsorTagline}</p>
           </div>
 
           <div className="match-demo__qr-card">
@@ -166,7 +214,7 @@ function MonitorStage({
           </div>
         </div>
 
-        <div className="match-demo__monitor-footer">
+        <div className={`match-demo__monitor-footer ${setup.gameMode === "league" ? "match-demo__monitor-footer--league" : ""}`}>
           <div>
             <span className="match-demo__label">{t.upcomingFormat}</span>
             <strong>{gameModeOptions.find((option) => option.value === setup.gameMode)?.label}</strong>
@@ -175,7 +223,7 @@ function MonitorStage({
             <span className="match-demo__label">{t.deuceModeLabel}</span>
             <strong>{deuceLabel}</strong>
           </div>
-          <div className="match-demo__schedule-strip">
+          <div className={`match-demo__schedule-strip ${setup.gameMode === "league" ? "match-demo__schedule-strip--league" : ""}`}>
             {schedule.map((entry) => (
               <div key={entry.label} className="match-demo__schedule-pill">
                 <span>{entry.label}</span>
@@ -214,7 +262,9 @@ function MonitorStage({
         <div className="match-demo__summary-grid">
           <div className="match-demo__winner-card match-demo__winner-card--summary">
             <div className="match-demo__sponsor-lockup">
-              <div className="match-demo__sponsor-logo">{sponsorMark}</div>
+              <div className="match-demo__sponsor-logo">
+                <SponsorGlyph id={sponsorMark} />
+              </div>
               <div>
                 <span className="match-demo__label">{t.finishedMatch}</span>
                 <h2>{setup.gameMode === "league" ? t.leagueCompleteTitle : t.winningPairTitle}</h2>
@@ -263,7 +313,9 @@ function MonitorStage({
 
         <div className="match-demo__summary-sponsor">
           <div className="match-demo__sponsor-lockup">
-            <div className="match-demo__sponsor-logo match-demo__sponsor-logo--small">{sponsorMark}</div>
+            <div className="match-demo__sponsor-logo match-demo__sponsor-logo--small">
+              <SponsorGlyph id={sponsorMark} />
+            </div>
             <span>{setup.sponsorName || t.defaultSponsorName}</span>
           </div>
           <small>{setup.sponsorTagline || t.defaultSponsorTagline}</small>
@@ -296,20 +348,23 @@ function MonitorStage({
           </strong>
         </div>
 
-        <div className="match-demo__center-panel">
-          <div className="match-demo__sets-grid">
-            {match.sets.map((set, index) => (
-              <div
-                key={`monitor-set-${index}`}
-                className={`match-demo__set-box ${index === match.setIndex ? "match-demo__set-box--active" : ""}`}
-              >
-                <span>S{index + 1}</span>
-                <strong>
-                  {set.left} - {set.right}
-                </strong>
-              </div>
-            ))}
-          </div>
+          <div className="match-demo__center-panel">
+            <div className="match-demo__sets-grid">
+              {match.sets.map((set, index) => {
+                const displaySet = match.sidesSwapped ? { left: set.right, right: set.left } : { left: set.left, right: set.right };
+                return (
+                  <div
+                    key={`monitor-set-${index}`}
+                    className={`match-demo__set-box ${index === match.setIndex ? "match-demo__set-box--active" : ""}`}
+                  >
+                    <span>S{index + 1}</span>
+                    <strong>
+                      {displaySet.left} - {displaySet.right}
+                    </strong>
+                  </div>
+                );
+              })}
+            </div>
 
           <div className="match-demo__status-row">
             <span>
@@ -487,7 +542,7 @@ function SetupPanel({
             <strong>{t.adminTitle}</strong>
             <span>{t.adminDescription}</span>
           </div>
-          <button type="button" className="match-demo__button match-demo__button--ghost" onClick={() => setShowAdmin((current) => !current)}>
+          <button type="button" className="match-demo__admin-toggle" onClick={() => setShowAdmin((current) => !current)}>
             {showAdmin ? t.adminHide : t.adminShow}
           </button>
         </div>
@@ -511,14 +566,24 @@ function SetupPanel({
                   maxLength={48}
                 />
               </label>
-              <label className="match-demo__field">
-                <span>{t.sponsorLogo}</span>
-                <input
-                  value={setup.sponsorLogoText}
-                  onChange={(event) => setSetup((current) => ({ ...current, sponsorLogoText: event.target.value }))}
-                  maxLength={6}
-                />
-              </label>
+            </div>
+
+            <div className="match-demo__field">
+              <span>{t.sponsorLogo}</span>
+              <div className="match-demo__logo-picker">
+                {sponsorLogoPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`match-demo__logo-choice ${setup.sponsorLogoText === preset.id ? "match-demo__logo-choice--active" : ""}`}
+                    onClick={() => setSetup((current) => ({ ...current, sponsorLogoText: preset.id }))}
+                    aria-label={preset.label}
+                    title={preset.label}
+                  >
+                    <SponsorGlyph id={preset.id} />
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="match-demo__sponsor-suggestions">
@@ -531,12 +596,6 @@ function SetupPanel({
                     setSetup((current) => ({
                       ...current,
                       sponsorName: suggestion,
-                      sponsorLogoText: suggestion
-                        .split(" ")
-                        .map((part) => part[0])
-                        .join("")
-                        .slice(0, 3)
-                        .toUpperCase(),
                     }))
                   }
                 >

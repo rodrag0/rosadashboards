@@ -276,6 +276,14 @@
   max-width: 10ch;
 }
 
+.match-demo__sponsor-hero-mark {
+  display: flex;
+  align-items: flex-end;
+  flex: 1;
+  min-height: 150px;
+  padding-top: 18px;
+}
+
 .match-demo__qr-card {
   display: grid;
   place-items: center;
@@ -324,6 +332,24 @@
   justify-content: flex-end;
 }
 
+.match-demo__monitor-footer--league {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  align-items: end;
+  gap: 16px 20px;
+}
+
+.match-demo__monitor-footer--league .match-demo__schedule-strip {
+  grid-column: 1 / -1;
+}
+
+.match-demo__schedule-strip--league {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
 .match-demo__schedule-pill,
 .match-demo__schedule-card,
 .match-demo__set-card,
@@ -343,6 +369,10 @@
   display: grid;
   gap: 4px;
   min-width: 170px;
+}
+
+.match-demo__schedule-strip--league .match-demo__schedule-pill {
+  min-width: 0;
 }
 
 .match-demo__schedule-pill strong,
@@ -950,8 +980,13 @@
     padding-top: 72px;
   }
 
+  .match-demo__topbar {
+    margin-bottom: 14px;
+  }
+
   .match-demo__header-actions {
     justify-items: flex-start;
+    gap: 14px;
   }
 
   .match-demo__stage-pills {
@@ -981,6 +1016,65 @@
 }
 
 @media (max-width: 680px) {
+  .match-demo {
+    padding-top: 40px;
+  }
+
+  .match-demo__topbar {
+    margin-bottom: 12px;
+  }
+
+  .match-demo__header {
+    gap: 14px;
+  }
+
+  .match-demo__header h1 {
+    font-size: clamp(2rem, 10.8vw, 2.8rem);
+    max-width: 10ch;
+  }
+
+  .match-demo__header p {
+    margin-top: 10px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    max-width: 34ch;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .match-demo__header-actions {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .match-demo__stage-pills {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .match-demo__stage-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .match-demo__stage-pill {
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+  }
+
+  .match-demo__header-actions .match-demo__button {
+    width: 100%;
+    min-height: 40px;
+  }
+
   .match-demo__monitor-topline,
   .match-demo__monitor-footer,
   .match-demo__status-row,
@@ -1024,6 +1118,17 @@
   box-shadow: 0 18px 34px rgba(255, 10, 140, 0.26);
 }
 
+.match-demo__sponsor-logo svg {
+  width: 60%;
+  height: 60%;
+}
+
+.match-demo__sponsor-logo--hero {
+  width: 110px;
+  height: 110px;
+  border-radius: 30px;
+}
+
 .match-demo__sponsor-logo--small {
   width: 42px;
   height: 42px;
@@ -1036,6 +1141,27 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.match-demo__admin-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f6f7f8;
+  font-weight: 700;
+  transition: transform var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.match-demo__admin-toggle:hover,
+.match-demo__admin-toggle:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 10, 140, 0.22);
+  background: rgba(255, 10, 140, 0.08);
 }
 
 .match-demo__admin-panel {
@@ -1056,6 +1182,35 @@
   color: rgba(244, 245, 247, 0.82);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.match-demo__logo-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.match-demo__logo-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 68px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(244, 245, 247, 0.9);
+  transition: transform var(--transition), border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.match-demo__logo-choice svg {
+  width: 34px;
+  height: 34px;
+}
+
+.match-demo__logo-choice--active {
+  border-color: rgba(255, 10, 140, 0.28);
+  background: linear-gradient(135deg, rgba(255, 10, 140, 0.12), rgba(114, 224, 242, 0.08));
+  box-shadow: 0 14px 26px rgba(255, 10, 140, 0.12);
 }
 
 .match-demo__summary-kpis {
@@ -1122,6 +1277,15 @@
   padding-right: 4px;
 }
 
+.match-demo__utility-grid {
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.match-demo__live-meta {
+  gap: 14px;
+}
+
 :root[data-theme="light"] .match-demo__sidebar-card,
 :root[data-theme="light"] .match-demo__phone-shell {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 247, 251, 0.98) 100%);
@@ -1157,7 +1321,9 @@
 :root[data-theme="light"] .match-demo__option-card,
 :root[data-theme="light"] .match-demo__field input,
 :root[data-theme="light"] .match-demo__chip,
-:root[data-theme="light"] .match-demo__button--ghost {
+:root[data-theme="light"] .match-demo__button--ghost,
+:root[data-theme="light"] .match-demo__admin-toggle,
+:root[data-theme="light"] .match-demo__logo-choice {
   color: #161a22;
 }
 
@@ -1178,7 +1344,9 @@
 :root[data-theme="light"] .match-demo__button--ghost,
 :root[data-theme="light"] .match-demo__chip,
 :root[data-theme="light"] .match-demo__option-card,
-:root[data-theme="light"] .match-demo__field input {
+:root[data-theme="light"] .match-demo__field input,
+:root[data-theme="light"] .match-demo__admin-toggle,
+:root[data-theme="light"] .match-demo__logo-choice {
   border-color: rgba(17, 20, 26, 0.08);
   background: rgba(17, 20, 26, 0.04);
 }
@@ -1201,6 +1369,11 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .match-demo__logo-picker,
+  .match-demo__schedule-strip--league {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 680px) {
@@ -1214,6 +1387,12 @@
     border-radius: 16px;
   }
 
+  .match-demo__sponsor-logo--hero {
+    width: 88px;
+    height: 88px;
+    border-radius: 24px;
+  }
+
   .match-demo__phone-shell {
     width: 100%;
     border-radius: 34px;
@@ -1222,5 +1401,11 @@
   .match-demo__phone-screen {
     border-radius: 26px;
     padding-inline: 12px;
+  }
+
+  .match-demo__monitor-footer--league,
+  .match-demo__schedule-strip--league,
+  .match-demo__logo-picker {
+    grid-template-columns: 1fr;
   }
 }
