@@ -303,6 +303,21 @@ export default function PostMatchDashboard() {
               className={`surface panel highlight-card ${selectedHighlight.id === highlight.id ? "highlight-card-active" : ""}`}
               onClick={() => jumpToHighlight(highlight, true)}
             >
+              <div className={`highlight-preview highlight-preview-${highlight.team}`}>
+                <div className="highlight-preview-topline">
+                  <span>{highlight.setLabel}</span>
+                  <span>{highlight.duration}</span>
+                </div>
+                <div className="highlight-preview-body">
+                  <span className="highlight-preview-play">▶</span>
+                  <strong>{highlight.shot}</strong>
+                  <small>Clip preview placeholder</small>
+                </div>
+                <div className="highlight-preview-track">
+                  <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
+                </div>
+              </div>
+
               <div className="highlight-topline">
                 <span className={`team-tag team-tag-${highlight.team}`}>{teamStyles[highlight.team].label}</span>
                 <span>{highlight.timeLabel}</span>
@@ -449,8 +464,8 @@ export default function PostMatchDashboard() {
           />
           <CourtHeatmap
             eyebrow="Winner landing zones"
-            title="Where Rosa finished rallies"
-            description="Most Rosa winners came from middle-lane compression and overhead finishes into the short corners."
+            title="ROSA winner landing zones"
+            description="A simulated landing map of Rosa's finishing balls, concentrated through the middle seam and the short corners after overhead pressure."
             points={matchData.heatmaps.winnerZones}
             accent={teamStyles.rosa.color}
           />

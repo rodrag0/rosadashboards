@@ -15,6 +15,18 @@ export function CourtHeatmap({
   points,
   accent,
 }: CourtHeatmapProps) {
+  const court = {
+    x: 10,
+    y: 12,
+    width: 80,
+    height: 160,
+  };
+
+  const serviceOffset = (3 / 20) * court.height;
+  const netY = court.y + court.height / 2;
+  const upperServiceY = court.y + serviceOffset;
+  const lowerServiceY = court.y + court.height - serviceOffset;
+
   return (
     <article className="surface panel heatmap-panel">
       <div className="section-copy">
@@ -24,27 +36,43 @@ export function CourtHeatmap({
       </div>
 
       <div className="court-shell">
-        <svg viewBox="0 0 100 140" className="court-svg" role="img" aria-label={title}>
-          <rect x="2" y="2" width="96" height="136" rx="8" className="court-outline" />
-          <line x1="50" y1="2" x2="50" y2="138" className="court-line" />
-          <line x1="2" y1="70" x2="98" y2="70" className="court-line court-net" />
-          <line x1="20" y1="35" x2="80" y2="35" className="court-line" />
-          <line x1="20" y1="105" x2="80" y2="105" className="court-line" />
-          <line x1="20" y1="35" x2="20" y2="105" className="court-line" />
-          <line x1="80" y1="35" x2="80" y2="105" className="court-line" />
+        <svg viewBox="0 0 100 184" className="court-svg" role="img" aria-label={title}>
+          <rect x={court.x} y={court.y} width={court.width} height={court.height} rx="8" className="court-outline" />
+          <line x1={court.x} y1={netY} x2={court.x + court.width} y2={netY} className="court-line court-net" />
+          <line
+            x1={court.x}
+            y1={upperServiceY}
+            x2={court.x + court.width}
+            y2={upperServiceY}
+            className="court-line"
+          />
+          <line
+            x1={court.x}
+            y1={lowerServiceY}
+            x2={court.x + court.width}
+            y2={lowerServiceY}
+            className="court-line"
+          />
+          <line
+            x1={court.x + court.width / 2}
+            y1={upperServiceY}
+            x2={court.x + court.width / 2}
+            y2={lowerServiceY}
+            className="court-line"
+          />
 
           {points.map((point, index) => (
             <g key={`${title}-${index}`}>
               <circle
-                cx={point.x}
-                cy={point.y * 1.36}
+                cx={court.x + point.x * (court.width / 100)}
+                cy={court.y + point.y * (court.height / 100)}
                 r={8 + point.intensity * 12}
                 fill={accent}
                 opacity={0.08 + point.intensity * 0.16}
               />
               <circle
-                cx={point.x}
-                cy={point.y * 1.36}
+                cx={court.x + point.x * (court.width / 100)}
+                cy={court.y + point.y * (court.height / 100)}
                 r={2 + point.intensity * 6}
                 fill={accent}
                 opacity={0.18 + point.intensity * 0.45}

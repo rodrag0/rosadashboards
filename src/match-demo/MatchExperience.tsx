@@ -207,7 +207,9 @@ function MonitorStage({
         <div className="match-demo__team match-demo__team--left">
           <span className="match-demo__label">Left side</span>
           <h2>{displayPairing.left}</h2>
-          <strong>{pointDisplay.left}</strong>
+          <strong className={`match-demo__point-value ${pointDisplay.starPoint ? "match-demo__point-value--star" : ""}`}>
+            {pointDisplay.left}
+          </strong>
         </div>
 
         <div className="match-demo__center-panel">
@@ -226,7 +228,15 @@ function MonitorStage({
           </div>
 
           <div className="match-demo__status-row">
-            <span>{pointDisplay.superTiebreak ? "Super tiebreak" : pointDisplay.tiebreak ? "Tiebreak" : "Regular game"}</span>
+            <span>
+              {pointDisplay.superTiebreak
+                ? "Super tiebreak"
+                : pointDisplay.tiebreak
+                  ? "Tiebreak"
+                  : pointDisplay.starPoint
+                    ? "Star point live"
+                    : "Regular game"}
+            </span>
             <span>Serve: {getDisplayServeSide(match) === 0 ? displayPairing.left : displayPairing.right}</span>
             <span>{setup.sideChangeMode === "odd_games" ? "Side changes on odd games" : "Side changes every set"}</span>
           </div>
@@ -235,7 +245,9 @@ function MonitorStage({
         <div className="match-demo__team match-demo__team--right">
           <span className="match-demo__label">Right side</span>
           <h2>{displayPairing.right}</h2>
-          <strong>{pointDisplay.right}</strong>
+          <strong className={`match-demo__point-value ${pointDisplay.starPoint ? "match-demo__point-value--star" : ""}`}>
+            {pointDisplay.right}
+          </strong>
         </div>
       </div>
 
@@ -297,31 +309,44 @@ function SetupPanel({
           ))}
         </div>
 
-        <div className="match-demo__inline-options">
-          {sideChangeOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={`match-demo__toggle ${setup.sideChangeMode === option.value ? "match-demo__toggle--active" : ""}`}
-              onClick={() => setSetup((current) => ({ ...current, sideChangeMode: option.value }))}
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="match-demo__selection-block">
+          <div className="match-demo__selection-head">
+            <strong>Side changes</strong>
+            <span>Choose when the monitor should prompt players to swap ends.</span>
+          </div>
+          <div className="match-demo__choice-grid match-demo__choice-grid--two">
+            {sideChangeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`match-demo__option-card ${setup.sideChangeMode === option.value ? "match-demo__option-card--active" : ""}`}
+                onClick={() => setSetup((current) => ({ ...current, sideChangeMode: option.value }))}
+              >
+                <span>{option.label}</span>
+                <small>{option.description}</small>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="match-demo__option-grid match-demo__option-grid--deuce">
-          {deuceOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={`match-demo__option-card ${setup.deuceMode === option.value ? "match-demo__option-card--active" : ""}`}
-              onClick={() => setSetup((current) => ({ ...current, deuceMode: option.value }))}
-            >
-              <span>{option.label}</span>
-              <small>{option.description}</small>
-            </button>
-          ))}
+        <div className="match-demo__selection-block">
+          <div className="match-demo__selection-head">
+            <strong>Deuce handling</strong>
+            <span>Select whether the point flow uses advantages, golden point, or Rosa's star-point logic.</span>
+          </div>
+          <div className="match-demo__option-grid match-demo__option-grid--deuce">
+            {deuceOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`match-demo__option-card ${setup.deuceMode === option.value ? "match-demo__option-card--active" : ""}`}
+                onClick={() => setSetup((current) => ({ ...current, deuceMode: option.value }))}
+              >
+                <span>{option.label}</span>
+                <small>{option.description}</small>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="match-demo__player-grid">
@@ -473,7 +498,7 @@ export default function MatchExperience() {
         </div>
       </header>
 
-      <section className="match-demo">
+      <section className={`match-demo match-demo--${displayStage}`}>
         <div className="match-demo__header">
           <div>
             <span className="match-demo__eyebrow">ROSA Core HD + Vision</span>

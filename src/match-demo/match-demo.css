@@ -1,5 +1,6 @@
 .match-demo-page {
   padding-bottom: 64px;
+  width: min(calc(100% - 28px), 1540px);
 }
 
 .match-demo {
@@ -86,10 +87,14 @@
 
 .match-demo__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.9fr);
+  grid-template-columns: minmax(0, 1.9fr) minmax(360px, 0.82fr);
   gap: 22px;
   margin-top: 30px;
   align-items: start;
+}
+
+.match-demo--setup .match-demo__layout {
+  grid-template-columns: minmax(0, 1.65fr) minmax(460px, 1.05fr);
 }
 
 .match-demo__monitor-shell {
@@ -233,7 +238,7 @@
 
 .match-demo__monitor-grid,
 .match-demo__summary-grid {
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.9fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.95fr);
 }
 
 .match-demo__sponsor-hero,
@@ -275,6 +280,7 @@
   display: grid;
   place-items: center;
   gap: 14px;
+  min-width: 0;
   min-height: 360px;
   padding: 28px;
   background:
@@ -296,6 +302,11 @@
 .match-demo__panel-copy p,
 .match-demo__winner-card p {
   color: #68707f;
+}
+
+.match-demo__qr-card p {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .match-demo__qr-card--summary {
@@ -373,6 +384,11 @@
   font-size: clamp(4rem, 9vw, 6rem);
   line-height: 0.85;
   letter-spacing: -0.08em;
+}
+
+.match-demo__point-value--star {
+  color: var(--rosa);
+  text-shadow: 0 0 22px rgba(255, 10, 140, 0.25);
 }
 
 .match-demo__center-panel {
@@ -547,18 +563,41 @@
   gap: 12px;
 }
 
+.match-demo__selection-block {
+  display: grid;
+  gap: 12px;
+}
+
+.match-demo__selection-head {
+  display: grid;
+  gap: 4px;
+}
+
+.match-demo__selection-head strong {
+  color: #f8f8fa;
+  font-size: 1rem;
+}
+
+.match-demo__selection-head span {
+  color: rgba(244, 245, 247, 0.64);
+  font-size: 0.92rem;
+}
+
+.match-demo__choice-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.match-demo__choice-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .match-demo__option-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .match-demo__option-grid--deuce {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.match-demo__inline-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .match-demo__option-card {
@@ -592,6 +631,7 @@
 .match-demo__field {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .match-demo__player-grid {
@@ -603,6 +643,8 @@
 }
 
 .match-demo__field input {
+  width: 100%;
+  min-width: 0;
   min-height: 48px;
   padding: 0 14px;
   border-radius: 16px;
@@ -737,6 +779,7 @@
 .match-demo__qr {
   display: inline-grid;
   gap: 4px;
+  max-width: 100%;
   padding: 10px;
   border-radius: 22px;
   background: #fff;
@@ -744,8 +787,8 @@
 }
 
 .match-demo__qr--large {
-  gap: 5px;
-  padding: 12px;
+  gap: 4px;
+  padding: 10px;
 }
 
 .match-demo__qr-row {
@@ -754,7 +797,7 @@
 }
 
 .match-demo__qr--large .match-demo__qr-row {
-  gap: 5px;
+  gap: 4px;
 }
 
 .match-demo__qr-cell {
@@ -765,8 +808,8 @@
 }
 
 .match-demo__qr--large .match-demo__qr-cell {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
 }
 
 .match-demo__qr-cell--filled {
@@ -813,6 +856,7 @@
   }
 
   .match-demo__scoreboard,
+  .match-demo__choice-grid--two,
   .match-demo__option-grid,
   .match-demo__option-grid--deuce,
   .match-demo__player-grid,

@@ -604,6 +604,19 @@ export function getPointDisplay(state: MatchState) {
       right: String(state.tiebreakRight),
       tiebreak: true,
       superTiebreak: state.inSuperTiebreak,
+      starPoint: false,
+    };
+  }
+
+  const starPoint = state.setup.deuceMode === "star" && state.starPointPending && !state.advLeft && !state.advRight;
+
+  if (starPoint) {
+    return {
+      left: "★",
+      right: "★",
+      tiebreak: false,
+      superTiebreak: false,
+      starPoint: true,
     };
   }
 
@@ -612,6 +625,7 @@ export function getPointDisplay(state: MatchState) {
     right: state.advRight ? "Ad" : pointLabel(state.pointsRight),
     tiebreak: false,
     superTiebreak: false,
+    starPoint: false,
   };
 }
 
