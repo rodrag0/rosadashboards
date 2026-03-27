@@ -376,9 +376,23 @@ function SetupPanel({
   }
 
   return (
-    <div className="match-demo__phone-shell">
-      <div className="match-demo__phone-notch" />
-      <div className="match-demo__phone-body">
+    <div className="match-demo__phone-stage">
+      <div className="match-demo__phone-shell">
+        <span className="match-demo__phone-side-button match-demo__phone-side-button--upper" aria-hidden="true" />
+        <span className="match-demo__phone-side-button match-demo__phone-side-button--lower" aria-hidden="true" />
+        <div className="match-demo__phone-statusbar" aria-hidden="true">
+          <span className="match-demo__phone-time">9:41</span>
+          <div className="match-demo__phone-notch" />
+          <div className="match-demo__phone-system">
+            <span className="match-demo__phone-signal" />
+            <span className="match-demo__phone-battery">
+              <i />
+            </span>
+          </div>
+        </div>
+
+        <div className="match-demo__phone-screen">
+          <div className="match-demo__phone-body">
         <div className="match-demo__panel-copy">
           <span className="match-demo__eyebrow">{t.setupEyebrow}</span>
           <h2>{t.setupTitle}</h2>
@@ -551,6 +565,8 @@ function SetupPanel({
             {t.startLiveMatch}
           </button>
         </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -559,6 +575,8 @@ function SetupPanel({
 export default function MatchExperience({ language, setLanguage, theme, setTheme }: MatchExperienceProps) {
   const messages = getTranslations(language);
   const t = messages.matchDemo;
+  const brandWordmark = theme === "dark" ? "/assets/rosa-logo-dark.png" : "/assets/rosa-logo-light.png";
+  const brandIcon = theme === "dark" ? "/assets/rosa-icon-dark.svg" : "/assets/rosa-icon-light.svg";
   const gameModeOptions = useMemo(() => getGameModeOptions(language), [language]);
   const sideChangeOptions = useMemo(() => getSideChangeOptions(language), [language]);
   const deuceOptions = useMemo(() => getDeuceOptions(language), [language]);
@@ -624,7 +642,7 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
 
       <header className="topbar match-demo__topbar">
         <a className="brand-lockup" href="/match-demo">
-          <img src="/assets/rosa-logo-dark.png" alt="ROSA" className="brand-wordmark" />
+          <img src={brandWordmark} alt="ROSA" className="brand-wordmark" />
           <div>
             <span>{t.brandTitle}</span>
             <small>{t.brandSubtitle}</small>
@@ -684,7 +702,7 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
           <div className="match-demo__monitor-shell">
             <div className="match-demo__monitor-frame">
               <div className="match-demo__monitor-brand">
-                <img src="/assets/rosa-icon-dark.svg" alt="" />
+                <img src={brandIcon} alt="" />
                 <span>{t.monitorSimulation}</span>
               </div>
 

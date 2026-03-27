@@ -46,6 +46,8 @@ function getHeatmapForPlayer(matchData: ReturnType<typeof getMatchData>, player:
 export default function PostMatchDashboard({ language, setLanguage, theme, setTheme }: DashboardProps) {
   const t = getTranslations(language);
   const matchData = useMemo(() => getMatchData(language), [language]);
+  const brandWordmark = theme === "dark" ? "/assets/rosa-logo-dark.png" : "/assets/rosa-logo-light.png";
+  const brandIcon = theme === "dark" ? "/assets/rosa-icon-dark.svg" : "/assets/rosa-icon-light.svg";
   const teamComparisonRows = useMemo(
     () => [
       { key: "pointsWon", label: t.postMatch.pointsWon },
@@ -124,7 +126,7 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
 
       <header className="topbar">
         <a className="brand-lockup" href="#overview">
-          <img src="/assets/rosa-logo-dark.png" alt="ROSA" className="brand-wordmark" />
+          <img src={brandWordmark} alt="ROSA" className="brand-wordmark" />
           <div>
             <span>{t.postMatch.brandTitle}</span>
             <small>{t.postMatch.brandSubtitle}</small>
@@ -563,7 +565,7 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
 
       <footer className="footer surface">
         <div>
-          <img src="/assets/rosa-icon-dark.svg" alt="" className="footer-icon" />
+          <img src={brandIcon} alt="" className="footer-icon" />
           <div>
             <strong>{t.postMatch.footerTitle}</strong>
             <span>{t.postMatch.footerDescription}</span>
