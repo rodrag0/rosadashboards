@@ -3,6 +3,7 @@ import type { Language, Theme } from "./appTypes";
 import { CourtHeatmap } from "./components/CourtHeatmap";
 import { MomentumChart } from "./components/MomentumChart";
 import { PlayerCard } from "./components/PlayerCard";
+import { ShareIconButton } from "./components/ShareIconButton";
 import { getMatchData, teamStyles } from "./data/demoMatch";
 import type { HighlightClip, HighlightFilter, PlayerProfile } from "./data/demoMatch";
 import { getTranslations, languageOptions } from "./i18n";
@@ -288,9 +289,9 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
                 </button>
                 <div className="share-action-row">
                   <span>{t.postMatch.shareClipTitle}</span>
-                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "copy")}>{copied ? t.common.copied : t.common.copyLink}</button>
-                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "whatsapp")}>{t.common.whatsapp}</button>
-                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "x")}>{t.common.x}</button>
+                  <ShareIconButton mode="copy" label={copied ? t.common.copied : t.common.copyLink} active={copied} onClick={() => void handleShare(selectedHighlight, "copy")} />
+                  <ShareIconButton mode="whatsapp" label={t.common.whatsapp} onClick={() => void handleShare(selectedHighlight, "whatsapp")} />
+                  <ShareIconButton mode="x" label={t.common.x} onClick={() => void handleShare(selectedHighlight, "x")} />
                 </div>
               </div>
             </article>
@@ -392,9 +393,9 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
 
               <div className="share-action-row share-action-row--card">
                 <span>{t.postMatch.shareSelectedClip}</span>
-                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "copy")}>{t.common.copyLink}</button>
-                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "whatsapp")}>{t.common.whatsapp}</button>
-                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "x")}>{t.common.x}</button>
+                <ShareIconButton mode="copy" label={copied ? t.common.copied : t.common.copyLink} active={copied} onClick={() => void handleShare(highlight, "copy")} />
+                <ShareIconButton mode="whatsapp" label={t.common.whatsapp} onClick={() => void handleShare(highlight, "whatsapp")} />
+                <ShareIconButton mode="x" label={t.common.x} onClick={() => void handleShare(highlight, "x")} />
               </div>
             </article>
           ))}

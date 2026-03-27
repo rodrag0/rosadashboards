@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import type { Language, Theme } from "../appTypes";
+import { ShareIconButton } from "../components/ShareIconButton";
 import { getTranslations, languageOptions } from "../i18n";
 import { getDeuceOptions, getGameModeOptions, getSideChangeOptions, initialSetup, qrPattern, sponsorSuggestions } from "./demoConfig";
 import "./match-demo.css";
@@ -253,15 +254,9 @@ function MonitorStage({
             <FauxQr />
             <p>{t.summaryMonitorNote}</p>
             <div className="share-action-row share-action-row--monitor">
-              <button type="button" className="share-chip" onClick={() => void shareSummary("copy", setup, match)}>
-                {common.copyLink}
-              </button>
-              <button type="button" className="share-chip" onClick={() => void shareSummary("whatsapp", setup, match)}>
-                {common.whatsapp}
-              </button>
-              <button type="button" className="share-chip" onClick={() => void shareSummary("x", setup, match)}>
-                {common.x}
-              </button>
+              <ShareIconButton mode="copy" label={common.copyLink} onClick={() => void shareSummary("copy", setup, match)} />
+              <ShareIconButton mode="whatsapp" label={common.whatsapp} onClick={() => void shareSummary("whatsapp", setup, match)} />
+              <ShareIconButton mode="x" label={common.x} onClick={() => void shareSummary("x", setup, match)} />
             </div>
           </div>
         </div>
@@ -861,15 +856,9 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
 
                 <div className="share-action-row share-action-row--stack">
                   <span>{t.summaryActions}</span>
-                  <button type="button" className="share-chip" onClick={() => void handleShare("copy")}>
-                    {copied ? messages.common.copied : messages.common.copyLink}
-                  </button>
-                  <button type="button" className="share-chip" onClick={() => void handleShare("whatsapp")}>
-                    {messages.common.whatsapp}
-                  </button>
-                  <button type="button" className="share-chip" onClick={() => void handleShare("x")}>
-                    {messages.common.x}
-                  </button>
+                  <ShareIconButton mode="copy" label={copied ? messages.common.copied : messages.common.copyLink} active={copied} onClick={() => void handleShare("copy")} />
+                  <ShareIconButton mode="whatsapp" label={messages.common.whatsapp} onClick={() => void handleShare("whatsapp")} />
+                  <ShareIconButton mode="x" label={messages.common.x} onClick={() => void handleShare("x")} />
                 </div>
 
                 <div className="match-demo__actions">
@@ -888,6 +877,7 @@ export default function MatchExperience({ language, setLanguage, theme, setTheme
     </main>
   );
 }
+
 
 
 
