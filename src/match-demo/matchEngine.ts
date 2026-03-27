@@ -10,6 +10,7 @@ export interface MatchSetup {
   players: [string, string, string, string];
   sponsorName: string;
   sponsorTagline: string;
+  sponsorLogoText: string;
   eventName: string;
   courtName: string;
 }

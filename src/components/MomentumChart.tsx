@@ -6,6 +6,11 @@ interface MomentumPoint {
 
 interface MomentumChartProps {
   points: MomentumPoint[];
+  eyebrow: string;
+  title: string;
+  description: string;
+  winningLegend: string;
+  oppositionLegend: string;
 }
 
 function buildPath(values: number[], width: number, height: number) {
@@ -19,7 +24,7 @@ function buildPath(values: number[], width: number, height: number) {
     .join(" ");
 }
 
-export function MomentumChart({ points }: MomentumChartProps) {
+export function MomentumChart({ points, eyebrow, title, description, winningLegend, oppositionLegend }: MomentumChartProps) {
   const width = 100;
   const height = 48;
   const rosaPath = buildPath(
@@ -35,17 +40,14 @@ export function MomentumChart({ points }: MomentumChartProps) {
 
   return (
     <article className="surface panel chart-panel">
-      <div className="section-copy">
-        <span className="eyebrow">Match statistics</span>
-        <h3>Momentum control through the three-set swing</h3>
-        <p>
-          Rosa lost control in the middle of set two, then rebuilt the rally profile
-          with earlier net entries and deeper defensive lobs.
-        </p>
+      <div className="section-copy compact">
+        <span className="eyebrow">{eyebrow}</span>
+        <h3>{title}</h3>
+        <p>{description}</p>
       </div>
 
       <div className="chart-shell">
-        <svg viewBox={`0 0 ${width} ${height}`} className="momentum-svg" role="img" aria-label="Momentum chart">
+        <svg viewBox={`0 0 ${width} ${height}`} className="momentum-svg" role="img" aria-label={title}>
           <defs>
             <linearGradient id="rosa-area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#ff0a8c" stopOpacity="0.35" />
@@ -68,10 +70,7 @@ export function MomentumChart({ points }: MomentumChartProps) {
             <line key={value} x1={value} y1="0" x2={value} y2={height} className="chart-break" />
           ))}
 
-          <path
-            d={`${rosaPath} L ${width} ${height} L 0 ${height} Z`}
-            fill="url(#rosa-area)"
-          />
+          <path d={`${rosaPath} L ${width} ${height} L 0 ${height} Z`} fill="url(#rosa-area)" />
           <path d={rosaPath} className="chart-line chart-line-rosa" />
           <path d={rivalPath} className="chart-line chart-line-rival" />
         </svg>
@@ -79,11 +78,11 @@ export function MomentumChart({ points }: MomentumChartProps) {
         <div className="chart-legend">
           <span className="legend-item">
             <span className="legend-swatch legend-swatch-rosa" />
-            Rosa pressure index
+            {winningLegend}
           </span>
           <span className="legend-item">
             <span className="legend-swatch legend-swatch-rival" />
-            Rival pressure index
+            {oppositionLegend}
           </span>
         </div>
       </div>

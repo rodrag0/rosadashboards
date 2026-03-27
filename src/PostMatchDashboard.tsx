@@ -1,35 +1,70 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import type { Language, Theme } from "./appTypes";
 import { CourtHeatmap } from "./components/CourtHeatmap";
 import { MomentumChart } from "./components/MomentumChart";
 import { PlayerCard } from "./components/PlayerCard";
-import { matchData, teamStyles } from "./data/demoMatch";
+import { getMatchData, teamStyles } from "./data/demoMatch";
 import type { HighlightClip, HighlightFilter, PlayerProfile } from "./data/demoMatch";
+import { getTranslations, languageOptions } from "./i18n";
 
-const teamComparisonRows = [
-  { key: "pointsWon", label: "Points won" },
-  { key: "winners", label: "Winners" },
-  { key: "unforcedErrors", label: "Unforced errors" },
-  { key: "breakPoints", label: "Break points" },
-  { key: "netConversion", label: "Net conversion" },
-  { key: "firstVolleyKill", label: "First-volley kill" },
-  { key: "defensiveResets", label: "Defensive resets" },
-] as const;
+interface DashboardProps {
+  language: Language;
+  setLanguage: Dispatch<SetStateAction<Language>>;
+  theme: Theme;
+  setTheme: Dispatch<SetStateAction<Theme>>;
+}
 
-function getHeatmapForPlayer(player: PlayerProfile) {
+function buildClipUrl(highlight: HighlightClip) {
+  const url = new URL(window.location.href);
+  url.hash = `highlight-${highlight.id}`;
+  return url.toString();
+}
+
+async function shareClip(highlight: HighlightClip, mode: "copy" | "whatsapp" | "x") {
+  const url = buildClipUrl(highlight);
+  const text = `${highlight.title} | ${highlight.score} | ${highlight.situation}`;
+
+  if (mode === "copy") {
+    await navigator.clipboard.writeText(`${text} ${url}`);
+    return;
+  }
+
+  const encoded = encodeURIComponent(`${text} ${url}`);
+  const shareUrl =
+    mode === "whatsapp"
+      ? `https://wa.me/?text=${encoded}`
+      : `https://x.com/intent/tweet?text=${encoded}`;
+
+  window.open(shareUrl, "_blank", "noopener,noreferrer");
+}
+
+function getHeatmapForPlayer(matchData: ReturnType<typeof getMatchData>, player: PlayerProfile) {
   return matchData.heatmaps[player.id as keyof typeof matchData.heatmaps];
 }
 
-function formatFilterLabel(filter: HighlightFilter) {
-  const item = matchData.filters.find((entry) => entry.id === filter);
-  return item?.label ?? "All clips";
-}
+export default function PostMatchDashboard({ language, setLanguage, theme, setTheme }: DashboardProps) {
+  const t = getTranslations(language);
+  const matchData = useMemo(() => getMatchData(language), [language]);
+  const teamComparisonRows = useMemo(
+    () => [
+      { key: "pointsWon", label: t.postMatch.pointsWon },
+      { key: "winners", label: t.postMatch.winners },
+      { key: "unforcedErrors", label: t.postMatch.unforcedErrors },
+      { key: "breakPoints", label: t.postMatch.breakPoints },
+      { key: "netConversion", label: t.postMatch.netConversion },
+      { key: "firstVolleyKill", label: t.postMatch.firstVolleyKill },
+      { key: "defensiveResets", label: t.postMatch.defensiveResets },
+    ] as const,
+    [t],
+  );
 
-export default function PostMatchDashboard() {
   const [selectedFilter, setSelectedFilter] = useState<HighlightFilter>("all");
   const [selectedHighlightId, setSelectedHighlightId] = useState(matchData.highlights[0].id);
   const [selectedPlayerId, setSelectedPlayerId] = useState(matchData.players[0].id);
   const [videoDuration, setVideoDuration] = useState(0);
+  const [copied, setCopied] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const replayPanelRef = useRef<HTMLElement | null>(null);
 
   const filteredHighlights =
     selectedFilter === "all"
@@ -44,6 +79,7 @@ export default function PostMatchDashboard() {
   useEffect(() => {
     document.title = "ROSA Vision dashboard demo";
   }, []);
+
 
   useEffect(() => {
     if (!videoDuration || !selectedHighlight) {
@@ -62,19 +98,26 @@ export default function PostMatchDashboard() {
     setSelectedHighlightId(highlight.id);
 
     const video = videoRef.current;
-    if (!video || !videoDuration) {
-      return;
+    if (video && videoDuration) {
+      video.currentTime = Math.max(0, Math.min(videoDuration - 0.25, videoDuration * highlight.cue));
+      if (autoplay) {
+        void video.play().catch(() => undefined);
+      }
     }
 
-    video.currentTime = Math.max(0, Math.min(videoDuration - 0.25, videoDuration * highlight.cue));
+    replayPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
-    if (autoplay) {
-      void video.play().catch(() => undefined);
+  async function handleShare(highlight: HighlightClip, mode: "copy" | "whatsapp" | "x") {
+    await shareClip(highlight, mode);
+    if (mode === "copy") {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
     }
   }
 
   return (
-    <main className="app-shell">
+    <main className="app-shell dashboard-shell">
       <div className="page-aura page-aura-left" />
       <div className="page-aura page-aura-right" />
 
@@ -82,57 +125,73 @@ export default function PostMatchDashboard() {
         <a className="brand-lockup" href="#overview">
           <img src="/assets/rosa-logo-dark.png" alt="ROSA" className="brand-wordmark" />
           <div>
-            <span>Vision dashboard</span>
-            <small>Pitch demo with simulated match data</small>
+            <span>{t.postMatch.brandTitle}</span>
+            <small>{t.postMatch.brandSubtitle}</small>
           </div>
         </a>
 
         <nav className="topnav">
-          <a href="#replay">Replay</a>
-          <a href="#highlights">Highlights</a>
-          <a href="#statistics">Statistics</a>
-          <a href="#heatmaps">Heatmaps</a>
+          <a href="#replay">{t.postMatch.navReplay}</a>
+          <a href="#highlights">{t.postMatch.navHighlights}</a>
+          <a href="#statistics">{t.postMatch.navStatistics}</a>
+          <a href="#heatmaps">{t.postMatch.navHeatmaps}</a>
         </nav>
 
-        <div className="topbar-badges">
-          <span className="pill subtle">Pilot-ready replay</span>
-          <span className="pill accent">ROSA Vision</span>
+        <div className="topbar-controls">
+          <div className="segment-control" aria-label={t.common.language}>
+            {languageOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`segment-control__button ${language === option ? "segment-control__button--active" : ""}`}
+                onClick={() => setLanguage(option)}
+              >
+                {option.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="button secondary" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+            {theme === "dark" ? t.common.light : t.common.dark}
+          </button>
           <a className="button secondary" href="/match-demo">
-            Open live setup demo
+            {t.common.openLiveDemo}
           </a>
         </div>
       </header>
 
-      <section className="hero section" id="overview">
-        <div className="section-copy hero-copy">
-          <span className="eyebrow">ROSA Vision post-match analysis</span>
-          <h1>Replay, highlights, heatmaps, and match intelligence in one premium report.</h1>
-          <p>{matchData.match.summary}</p>
-
-          <div className="hero-actions">
-            <a className="button primary" href="#replay">
-              Watch replay
-            </a>
-            <a className="button secondary" href="#heatmaps">
-              Open heatmaps
-            </a>
-            <a className="button secondary" href="/match-demo">
-              Switch to live setup demo
-            </a>
+      <section className="hero section dashboard-hero" id="overview">
+        <div className="dashboard-heading">
+          <div className="section-copy compact hero-copy">
+            <span className="eyebrow">{t.postMatch.headerEyebrow}</span>
+            <h1>{t.postMatch.headerTitle}</h1>
+            <p>{t.postMatch.headerDescription}</p>
           </div>
 
-          <div className="signal-row">
-            <span>{matchData.match.reportReady}</span>
-            <span>{matchData.match.taggedEvents} synced rally events</span>
-            <span>{matchData.match.scoreSync} score sync confidence</span>
+          <div className="dashboard-summary-strip surface panel">
+            <div>
+              <span>{t.postMatch.compactSummaryEyebrow}</span>
+              <strong>{matchData.match.reportReady}</strong>
+            </div>
+            <div>
+              <span>{t.postMatch.avgRally}</span>
+              <strong>{matchData.match.averageRally}</strong>
+            </div>
+            <div>
+              <span>{t.postMatch.longestPoint}</span>
+              <strong>{matchData.match.longestRally}</strong>
+            </div>
+            <div>
+              <span>{t.postMatch.autoClips}</span>
+              <strong>{matchData.match.autoSelectedClips}</strong>
+            </div>
           </div>
         </div>
 
-        <div className="hero-grid">
-          <article className="surface panel replay-panel" id="replay">
+        <div className="hero-grid dashboard-grid">
+          <article ref={replayPanelRef} className="surface panel replay-panel" id="replay">
             <div className="panel-heading">
               <div>
-                <span className="eyebrow">Post-match video</span>
+                <span className="eyebrow">{t.postMatch.videoEyebrow}</span>
                 <h2>{matchData.match.finalHeadline}</h2>
               </div>
 
@@ -163,11 +222,11 @@ export default function PostMatchDashboard() {
             </div>
           </article>
 
-          <aside className="hero-side">
+          <aside className="hero-side dashboard-side">
             <article className="surface panel score-panel">
               <div className="score-header">
                 <div>
-                  <span className="eyebrow">Match score</span>
+                  <span className="eyebrow">{t.postMatch.matchScore}</span>
                   <h2>Rodrigo / Omar vs Saul / Memo</h2>
                 </div>
                 <strong className="result-badge">2-1</strong>
@@ -190,23 +249,23 @@ export default function PostMatchDashboard() {
 
               <div className="score-kpis">
                 <div>
-                  <strong>{matchData.match.averageRally}</strong>
-                  <span>Avg rally</span>
+                  <strong>{matchData.match.taggedEvents}</strong>
+                  <span>{t.postMatch.syncedEvents}</span>
                 </div>
                 <div>
-                  <strong>{matchData.match.longestRally}</strong>
-                  <span>Longest point</span>
+                  <strong>{matchData.match.scoreSync}</strong>
+                  <span>{t.postMatch.scoreSync}</span>
                 </div>
                 <div>
-                  <strong>{matchData.match.autoSelectedClips}</strong>
-                  <span>Auto-selected clips</span>
+                  <strong>{matchData.match.reportReady}</strong>
+                  <span>{t.postMatch.pilotReady}</span>
                 </div>
               </div>
             </article>
 
             <article className="surface panel selected-panel">
               <div className="section-copy compact">
-                <span className="eyebrow">Automatic highlight selection</span>
+                <span className="eyebrow">{t.postMatch.autoSelectEyebrow}</span>
                 <h3>{selectedHighlight.title}</h3>
                 <p>{selectedHighlight.summary}</p>
               </div>
@@ -218,22 +277,26 @@ export default function PostMatchDashboard() {
               </div>
 
               <div className="selected-tags">
-                <span className="pill subtle">{formatFilterLabel(selectedHighlight.filter)}</span>
+                <span className="pill subtle">{matchData.filters.find((entry) => entry.id === selectedHighlight.filter)?.label}</span>
                 <span className="pill subtle">{selectedHighlight.shot}</span>
-                <span className="pill subtle">{selectedHighlight.confidence}% confidence</span>
+                <span className="pill subtle">{selectedHighlight.confidence}%</span>
               </div>
 
-              <button
-                type="button"
-                className="button primary button-block"
-                onClick={() => jumpToHighlight(selectedHighlight, true)}
-              >
-                Play selected clip
-              </button>
+              <div className="selected-actions">
+                <button type="button" className="button primary button-block" onClick={() => jumpToHighlight(selectedHighlight, true)}>
+                  {t.postMatch.playSelectedClip}
+                </button>
+                <div className="share-action-row">
+                  <span>{t.postMatch.shareClipTitle}</span>
+                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "copy")}>{copied ? t.common.copied : t.common.copyLink}</button>
+                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "whatsapp")}>{t.common.whatsapp}</button>
+                  <button type="button" className="share-chip" onClick={() => void handleShare(selectedHighlight, "x")}>{t.common.x}</button>
+                </div>
+              </div>
             </article>
 
             <article className="surface panel insight-panel">
-              <span className="eyebrow">Match MVP</span>
+              <span className="eyebrow">{t.postMatch.mvpEyebrow}</span>
               <div className="mvp-lockup">
                 <div className="mvp-avatar" style={{ backgroundImage: matchData.players[0].avatarGradient }}>
                   RO
@@ -246,15 +309,15 @@ export default function PostMatchDashboard() {
               <div className="mvp-grid">
                 <div>
                   <strong>{matchData.players[0].impact.toFixed(1)}</strong>
-                  <span>Impact</span>
+                  <span>{t.postMatch.impact}</span>
                 </div>
                 <div>
                   <strong>{matchData.players[0].pressurePointsWon}</strong>
-                  <span>Pressure points</span>
+                  <span>{t.postMatch.pressurePoints}</span>
                 </div>
                 <div>
                   <strong>{matchData.players[0].smashesWon}/{matchData.players[0].smashesTotal}</strong>
-                  <span>Smashes</span>
+                  <span>{t.postMatch.smashes}</span>
                 </div>
               </div>
             </article>
@@ -262,15 +325,11 @@ export default function PostMatchDashboard() {
         </div>
       </section>
 
-      <section className="section" id="highlights">
-        <div className="section-copy section-heading">
-          <span className="eyebrow">Replay navigation</span>
-          <h2>Automatic highlight selection organized by shot and situation</h2>
-          <p>
-            Every clip stays linked to the full replay so a coach, tournament operator,
-            or player can move from the full match into the most important moments
-            without breaking context.
-          </p>
+      <section className="section dashboard-section" id="highlights">
+        <div className="section-copy section-heading compact">
+          <span className="eyebrow">{t.postMatch.replayNavEyebrow}</span>
+          <h2>{t.postMatch.replayNavTitle}</h2>
+          <p>{t.postMatch.replayNavDescription}</p>
         </div>
 
         <div className="collection-row">
@@ -297,59 +356,64 @@ export default function PostMatchDashboard() {
 
         <div className="highlights-grid">
           {filteredHighlights.map((highlight) => (
-            <button
+            <article
               key={highlight.id}
-              type="button"
+              id={`highlight-${highlight.id}`}
               className={`surface panel highlight-card ${selectedHighlight.id === highlight.id ? "highlight-card-active" : ""}`}
-              onClick={() => jumpToHighlight(highlight, true)}
             >
-              <div className={`highlight-preview highlight-preview-${highlight.team}`}>
-                <div className="highlight-preview-topline">
-                  <span>{highlight.setLabel}</span>
-                  <span>{highlight.duration}</span>
+              <button type="button" className="highlight-card-main" onClick={() => jumpToHighlight(highlight, true)}>
+                <div className={`highlight-preview highlight-preview-${highlight.team}`}>
+                  <div className="highlight-preview-topline">
+                    <span>{highlight.setLabel}</span>
+                    <span>{highlight.duration}</span>
+                  </div>
+                  <div className="highlight-preview-body">
+                    <span className="highlight-preview-play">PLAY</span>
+                    <strong>{highlight.shot}</strong>
+                    <small>{t.postMatch.clipPreviewPlaceholder}</small>
+                  </div>
+                  <div className="highlight-preview-track">
+                    <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
+                  </div>
                 </div>
-                <div className="highlight-preview-body">
-                  <span className="highlight-preview-play">▶</span>
-                  <strong>{highlight.shot}</strong>
-                  <small>Clip preview placeholder</small>
-                </div>
-                <div className="highlight-preview-track">
-                  <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
-                </div>
-              </div>
 
-              <div className="highlight-topline">
-                <span className={`team-tag team-tag-${highlight.team}`}>{teamStyles[highlight.team].label}</span>
-                <span>{highlight.timeLabel}</span>
+                <div className="highlight-topline">
+                  <span className={`team-tag team-tag-${highlight.team}`}>{teamStyles[highlight.team].label}</span>
+                  <span>{highlight.timeLabel}</span>
+                </div>
+                <h3>{highlight.title}</h3>
+                <p>{highlight.summary}</p>
+                <div className="highlight-footer">
+                  <span>{highlight.score}</span>
+                  <span>{highlight.situation}</span>
+                  <span>{highlight.confidence}%</span>
+                </div>
+              </button>
+
+              <div className="share-action-row share-action-row--card">
+                <span>{t.postMatch.shareSelectedClip}</span>
+                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "copy")}>{t.common.copyLink}</button>
+                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "whatsapp")}>{t.common.whatsapp}</button>
+                <button type="button" className="share-chip" onClick={() => void handleShare(highlight, "x")}>{t.common.x}</button>
               </div>
-              <h3>{highlight.title}</h3>
-              <p>{highlight.summary}</p>
-              <div className="highlight-footer">
-                <span>{highlight.score}</span>
-                <span>{highlight.shot}</span>
-                <span>{highlight.confidence}%</span>
-              </div>
-            </button>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="section" id="statistics">
-        <div className="section-copy section-heading">
-          <span className="eyebrow">Shot count and match statistics</span>
-          <h2>A Rosa Vision report can move from scoreboard context into player and shot-level detail.</h2>
-          <p>
-            The demo below is populated with fabricated but internally consistent padel data:
-            winners, unforced errors, break-point pressure, shot taxonomy, and player impact.
-          </p>
+      <section className="section dashboard-section" id="statistics">
+        <div className="section-copy section-heading compact">
+          <span className="eyebrow">{t.postMatch.statsEyebrow}</span>
+          <h2>{t.postMatch.statsTitle}</h2>
+          <p>{t.postMatch.statsDescription}</p>
         </div>
 
-        <div className="statistics-grid">
+        <div className="statistics-grid dashboard-stats-grid">
           <article className="surface panel comparison-panel">
             <div className="comparison-header">
               <div>
-                <span className="eyebrow">Team comparison</span>
-                <h3>Match control at pair level</h3>
+                <span className="eyebrow">{t.postMatch.comparisonEyebrow}</span>
+                <h3>{t.postMatch.comparisonTitle}</h3>
               </div>
               <span className="pill subtle">{matchData.match.date}</span>
             </div>
@@ -376,13 +440,20 @@ export default function PostMatchDashboard() {
             </div>
           </article>
 
-          <MomentumChart points={matchData.momentum} />
+          <MomentumChart
+            points={matchData.momentum}
+            eyebrow={t.postMatch.momentumEyebrow}
+            title={t.postMatch.momentumTitle}
+            description={t.postMatch.momentumDescription}
+            winningLegend={t.postMatch.winningPressureIndex}
+            oppositionLegend={t.postMatch.oppositionPressureIndex}
+          />
 
           <article className="surface panel shot-panel">
             <div className="section-copy compact">
-              <span className="eyebrow">Shot count</span>
-              <h3>How each pair built pressure</h3>
-              <p>Rosa won through a heavier volley and overhead profile, while the rivals leaned on lobs and longer defensive patterns.</p>
+              <span className="eyebrow">{t.postMatch.shotCountEyebrow}</span>
+              <h3>{t.postMatch.shotCountTitle}</h3>
+              <p>{t.postMatch.shotCountDescription}</p>
             </div>
 
             <div className="shot-list">
@@ -422,6 +493,20 @@ export default function PostMatchDashboard() {
             <PlayerCard
               key={player.id}
               player={player}
+              labels={{
+                winningPair: t.postMatch.winningPair,
+                oppositionPair: t.postMatch.oppositionPair,
+                impact: t.postMatch.impact,
+                winners: t.postMatch.winners,
+                ue: t.postMatch.ue,
+                fe: t.postMatch.fe,
+                clutch: t.postMatch.clutch,
+                smashes: t.postMatch.smashes,
+                netConversion: t.postMatch.netConversion,
+                pressurePoints: t.postMatch.pressurePoints,
+                decisionRating: t.postMatch.decisionRating,
+                mvp: t.postMatch.mvpEyebrow,
+              }}
               active={selectedPlayer.id === player.id}
               onSelect={setSelectedPlayerId}
             />
@@ -429,15 +514,11 @@ export default function PostMatchDashboard() {
         </div>
       </section>
 
-      <section className="section" id="heatmaps">
-        <div className="section-copy section-heading">
-          <span className="eyebrow">Heatmaps and player intelligence</span>
-          <h2>Heatmaps are central to Rosa Vision, not an afterthought.</h2>
-          <p>
-            The selected player map highlights where that player spent most of the
-            match. Two additional maps show where winners landed and where pressure
-            forced errors or short resets.
-          </p>
+      <section className="section dashboard-section" id="heatmaps">
+        <div className="section-copy section-heading compact">
+          <span className="eyebrow">{t.postMatch.heatmapsEyebrow}</span>
+          <h2>{t.postMatch.heatmapsTitle}</h2>
+          <p>{t.postMatch.heatmapsDescription}</p>
         </div>
 
         <div className="player-switcher">
@@ -456,23 +537,23 @@ export default function PostMatchDashboard() {
 
         <div className="heatmap-grid">
           <CourtHeatmap
-            eyebrow="Selected player map"
-            title={`${selectedPlayer.shortName}'s court occupation`}
+            eyebrow={t.postMatch.selectedPlayerMapEyebrow}
+            title={t.postMatch.selectedPlayerMapTitle(selectedPlayer.shortName)}
             description={selectedPlayer.keyLine}
-            points={getHeatmapForPlayer(selectedPlayer)}
+            points={getHeatmapForPlayer(matchData, selectedPlayer)}
             accent={teamStyles[selectedPlayer.team].color}
           />
           <CourtHeatmap
-            eyebrow="Winner landing zones"
-            title="ROSA winner landing zones"
-            description="A simulated landing map of Rosa's finishing balls, concentrated through the middle seam and the short corners after overhead pressure."
+            eyebrow={t.postMatch.winnerMapEyebrow}
+            title={t.postMatch.winnerMapTitle}
+            description={t.postMatch.winnerMapDescription}
             points={matchData.heatmaps.winnerZones}
             accent={teamStyles.rosa.color}
           />
           <CourtHeatmap
-            eyebrow="Pressure errors"
-            title="Where the rivals leaked short balls"
-            description="The highest concentration sits around the right-half service line, where repeated resets opened the overhead lane."
+            eyebrow={t.postMatch.pressureMapEyebrow}
+            title={t.postMatch.pressureMapTitle}
+            description={t.postMatch.pressureMapDescription}
             points={matchData.heatmaps.pressureMap}
             accent={teamStyles.rivals.color}
           />
@@ -483,19 +564,20 @@ export default function PostMatchDashboard() {
         <div>
           <img src="/assets/rosa-icon-dark.svg" alt="" className="footer-icon" />
           <div>
-            <strong>ROSA Vision dashboard demo</strong>
-            <span>Structured to match the current ROSA site language while visualizing the future replay and analysis layer.</span>
+            <strong>{t.postMatch.footerTitle}</strong>
+            <span>{t.postMatch.footerDescription}</span>
           </div>
         </div>
         <div className="topbar-badges">
           <a className="button secondary" href="/match-demo">
-            Switch to live setup demo
+            {t.common.openLiveDemo}
           </a>
           <a className="button secondary" href="#overview">
-            Back to top
+            {t.postMatch.backToTop}
           </a>
         </div>
       </footer>
     </main>
   );
 }
+

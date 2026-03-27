@@ -2,20 +2,36 @@ import type { CSSProperties } from "react";
 import type { PlayerProfile } from "../data/demoMatch";
 import { teamStyles } from "../data/demoMatch";
 
+interface PlayerCardLabels {
+  winningPair: string;
+  oppositionPair: string;
+  impact: string;
+  winners: string;
+  ue: string;
+  fe: string;
+  clutch: string;
+  smashes: string;
+  netConversion: string;
+  pressurePoints: string;
+  decisionRating: string;
+  mvp: string;
+}
+
 interface PlayerCardProps {
   player: PlayerProfile;
+  labels: PlayerCardLabels;
   active?: boolean;
   onSelect?: (playerId: string) => void;
 }
 
-export function PlayerCard({ player, active = false, onSelect }: PlayerCardProps) {
+export function PlayerCard({ player, labels, active = false, onSelect }: PlayerCardProps) {
   const teamStyle = teamStyles[player.team];
 
   return (
     <article className={`surface panel player-card ${active ? "player-card-active" : ""}`}>
       <div className="player-topline">
-        <span>{player.team === "rosa" ? "ROSA pair" : "Opposition pair"}</span>
-        {player.mvp ? <strong>MVP</strong> : <strong>Impact {player.impact.toFixed(1)}</strong>}
+        <span>{player.team === "rosa" ? labels.winningPair : labels.oppositionPair}</span>
+        {player.mvp ? <strong>{labels.mvp}</strong> : <strong>{labels.impact} {player.impact.toFixed(1)}</strong>}
       </div>
 
       <div className="player-overview">
@@ -30,7 +46,7 @@ export function PlayerCard({ player, active = false, onSelect }: PlayerCardProps
           </span>
         </button>
 
-        <div>
+        <div className="player-heading">
           <h3>{player.shortName}</h3>
           <p>{player.role}</p>
         </div>
@@ -45,46 +61,46 @@ export function PlayerCard({ player, active = false, onSelect }: PlayerCardProps
           }
         >
           <span>{player.impact.toFixed(1)}</span>
-          <small>impact</small>
+          <small>{labels.impact}</small>
         </div>
       </div>
 
-      <div className="player-metrics">
+      <div className="player-metrics player-metrics--compact">
         <div>
           <strong>{player.winners}</strong>
-          <span>Winners</span>
+          <span>{labels.winners}</span>
         </div>
         <div>
           <strong>{player.unforcedErrors}</strong>
-          <span>UE</span>
+          <span>{labels.ue}</span>
         </div>
         <div>
           <strong>{player.forcedErrors}</strong>
-          <span>FE</span>
+          <span>{labels.fe}</span>
         </div>
         <div>
           <strong>{player.clutch}</strong>
-          <span>Clutch</span>
+          <span>{labels.clutch}</span>
         </div>
       </div>
 
-      <div className="player-bars">
+      <div className="player-bars player-bars--compact">
         <div>
-          <span>Smashes</span>
+          <span>{labels.smashes}</span>
           <strong>
             {player.smashesWon}/{player.smashesTotal}
           </strong>
         </div>
         <div>
-          <span>Net conversion</span>
+          <span>{labels.netConversion}</span>
           <strong>{player.netConversion}%</strong>
         </div>
         <div>
-          <span>Pressure points</span>
+          <span>{labels.pressurePoints}</span>
           <strong>{player.pressurePointsWon}</strong>
         </div>
         <div>
-          <span>Decision rating</span>
+          <span>{labels.decisionRating}</span>
           <strong>
             {player.decisionRating > 0 ? "+" : ""}
             {player.decisionRating.toFixed(2)}
