@@ -17,6 +17,8 @@ interface DashboardProps {
   setTheme: Dispatch<SetStateAction<Theme>>;
 }
 
+const visionCoachDemoUrl = "https://rosavision.vercel.app/";
+
 function buildClipUrl(highlight: HighlightClip) {
   const url = new URL(window.location.href);
   url.hash = `highlight-${highlight.id}`;
@@ -45,6 +47,104 @@ function getHeatmapForPlayer(matchData: ReturnType<typeof getMatchData>, player:
   return matchData.heatmaps[player.id as keyof typeof matchData.heatmaps];
 }
 
+function parsePercent(value: string) {
+  return Number(value.replace("%", ""));
+}
+
+function getFilterLabel(filter: HighlightFilter, language: Language) {
+  const map = {
+    en: {
+      winner: "Finishing phase",
+      transition: "Transition phase",
+      defense: "Defensive phase",
+      pressure: "Pressure phase",
+      variation: "Pattern phase",
+      all: "All phases",
+    },
+    es: {
+      winner: "Fase de definición",
+      transition: "Fase de transición",
+      defense: "Fase defensiva",
+      pressure: "Fase de presión",
+      variation: "Fase de patrón",
+      all: "Todas las fases",
+    },
+    de: {
+      winner: "Abschlussphase",
+      transition: "Übergangsphase",
+      defense: "Defensivphase",
+      pressure: "Druckphase",
+      variation: "Musterphase",
+      all: "Alle Phasen",
+    },
+  } as const;
+
+  return map[language][filter];
+}
+
+function getShotFamilyLabel(shot: string, language: Language) {
+  const normalized = shot.toLowerCase();
+  const lookup =
+    normalized.includes("smash") || normalized.includes("remate")
+      ? "smash"
+      : normalized.includes("vibora") || normalized.includes("víbora")
+        ? "vibora"
+        : normalized.includes("bandeja")
+          ? "bandeja"
+          : normalized.includes("lob") || normalized.includes("globo")
+            ? "lob"
+            : normalized.includes("volley") || normalized.includes("volea")
+              ? "volley"
+              : normalized.includes("return") || normalized.includes("devol")
+                ? "return"
+                : normalized.includes("pass")
+                  ? "passing"
+                  : "rally";
+
+  const map = {
+    en: {
+      smash: "Smash family",
+      vibora: "Vibora family",
+      bandeja: "Bandeja family",
+      lob: "Lob family",
+      volley: "Volley family",
+      return: "Return family",
+      passing: "Passing family",
+      rally: "Rally-control family",
+    },
+    es: {
+      smash: "Familia de remate",
+      vibora: "Familia de víbora",
+      bandeja: "Familia de bandeja",
+      lob: "Familia de globo",
+      volley: "Familia de volea",
+      return: "Familia de resto",
+      passing: "Familia de passing",
+      rally: "Familia de control",
+    },
+    de: {
+      smash: "Smash-Familie",
+      vibora: "Vibora-Familie",
+      bandeja: "Bandeja-Familie",
+      lob: "Lob-Familie",
+      volley: "Volley-Familie",
+      return: "Return-Familie",
+      passing: "Passier-Familie",
+      rally: "Kontroll-Familie",
+    },
+  } as const;
+
+  return map[language][lookup];
+}
+
+function getSnippetClassifications(highlight: HighlightClip, language: Language) {
+  return [
+    getShotFamilyLabel(highlight.shot, language),
+    getFilterLabel(highlight.filter, language),
+    `${highlight.confidence}%`,
+  ];
+}
+
 export default function PostMatchDashboard({ language, setLanguage, theme, setTheme }: DashboardProps) {
   const t = getTranslations(language);
   const matchData = useMemo(() => getMatchData(language), [language]);
@@ -64,6 +164,9 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
   );
 
   const [selectedFilter, setSelectedFilter] = useState<HighlightFilter>("all");
+  const [selectedTeamFilter, setSelectedTeamFilter] = useState<"all" | "rosa" | "rivals">("all");
+  const [highlightSort, setHighlightSort] = useState<"priority" | "timeline">("priority");
+  const [selectedShot, setSelectedShot] = useState<string>("all");
   const [selectedHighlightId, setSelectedHighlightId] = useState(matchData.highlights[0].id);
   const [selectedPlayerId, setSelectedPlayerId] = useState(matchData.players[0].id);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -71,20 +174,59 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const replayPanelRef = useRef<HTMLElement | null>(null);
 
-  const filteredHighlights =
-    selectedFilter === "all"
-      ? matchData.highlights
-      : matchData.highlights.filter((highlight) => highlight.filter === selectedFilter);
+  const shotOptions = useMemo(() => {
+    return Array.from(new Set(matchData.highlights.map((highlight) => highlight.shot)));
+  }, [matchData.highlights]);
+
+  const resolvedSelectedShot = selectedShot === "all" || shotOptions.includes(selectedShot) ? selectedShot : "all";
+
+  const filteredHighlights = useMemo(() => {
+    const byType =
+      selectedFilter === "all"
+        ? matchData.highlights
+        : matchData.highlights.filter((highlight) => highlight.filter === selectedFilter);
+
+    const byTeam =
+      selectedTeamFilter === "all"
+        ? byType
+        : byType.filter((highlight) => highlight.team === selectedTeamFilter);
+
+    const byShot =
+      resolvedSelectedShot === "all"
+        ? byTeam
+        : byTeam.filter((highlight) => highlight.shot === resolvedSelectedShot);
+
+    const ordered = [...byShot];
+    if (highlightSort === "priority") {
+      ordered.sort((a, b) => b.confidence - a.confidence);
+    } else {
+      ordered.sort((a, b) => a.cue - b.cue);
+    }
+
+    return ordered;
+  }, [highlightSort, matchData.highlights, resolvedSelectedShot, selectedFilter, selectedTeamFilter]);
 
   const selectedHighlight =
-    filteredHighlights.find((highlight) => highlight.id === selectedHighlightId) ?? filteredHighlights[0];
+    filteredHighlights.find((highlight) => highlight.id === selectedHighlightId) ??
+    filteredHighlights[0] ??
+    matchData.highlights[0];
   const selectedPlayer =
     matchData.players.find((player) => player.id === selectedPlayerId) ?? matchData.players[0];
+  const selectedHighlightIndex = Math.max(
+    0,
+    filteredHighlights.findIndex((highlight) => highlight.id === selectedHighlight?.id),
+  );
+  const selectedHighlightPosition = `${selectedHighlightIndex + 1}/${Math.max(filteredHighlights.length, 1)}`;
+  const selectedClassifications = getSnippetClassifications(selectedHighlight, language);
+  const leadingTeam = matchData.teamComparison[0];
+  const trailingTeam = matchData.teamComparison[1];
+  const winnersDelta = leadingTeam.winners - trailingTeam.winners;
+  const ueDelta = trailingTeam.unforcedErrors - leadingTeam.unforcedErrors;
+  const netDelta = parsePercent(leadingTeam.netConversion) - parsePercent(trailingTeam.netConversion);
 
   useEffect(() => {
     document.title = "ROSA Vision dashboard demo";
   }, []);
-
 
   useEffect(() => {
     if (!videoDuration || !selectedHighlight) {
@@ -111,6 +253,20 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
     }
 
     replayPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function stepHighlight(direction: "prev" | "next") {
+    if (!filteredHighlights.length || !selectedHighlight) {
+      return;
+    }
+
+    const currentIndex = filteredHighlights.findIndex((highlight) => highlight.id === selectedHighlight.id);
+    const nextIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
+    if (nextIndex < 0 || nextIndex >= filteredHighlights.length) {
+      return;
+    }
+
+    jumpToHighlight(filteredHighlights[nextIndex], true);
   }
 
   async function handleShare(highlight: HighlightClip, mode: "copy" | "whatsapp" | "x") {
@@ -273,6 +429,34 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
                 <span>{selectedHighlight.duration}</span>
               </div>
 
+              <div className="snippet-classification-row">
+                {selectedClassifications.map((item) => (
+                  <span key={`selected-classification-${item}`} className="snippet-classification-chip">
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div className="selected-navigation">
+                <button
+                  type="button"
+                  className="button secondary selected-navigation-button"
+                  onClick={() => stepHighlight("prev")}
+                  disabled={selectedHighlightIndex <= 0}
+                >
+                  {t.postMatch.previousClip}
+                </button>
+                <span>{t.postMatch.clipPosition(selectedHighlightPosition)}</span>
+                <button
+                  type="button"
+                  className="button secondary selected-navigation-button"
+                  onClick={() => stepHighlight("next")}
+                  disabled={selectedHighlightIndex >= filteredHighlights.length - 1}
+                >
+                  {t.postMatch.nextClip}
+                </button>
+              </div>
+
               <div className="selected-tags">
                 <span className="pill subtle">{matchData.filters.find((entry) => entry.id === selectedHighlight.filter)?.label}</span>
                 <span className="pill subtle">{selectedHighlight.shot}</span>
@@ -327,6 +511,64 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
           <span className="eyebrow">{t.postMatch.replayNavEyebrow}</span>
           <h2>{t.postMatch.replayNavTitle}</h2>
           <p>{t.postMatch.replayNavDescription}</p>
+          <div className="context-demo-link">
+            <a className="pill subtle" href={visionCoachDemoUrl} target="_blank" rel="noopener noreferrer">
+              {t.common.openVisionCoachDemo}
+            </a>
+            <span>{t.postMatch.visionCoachHint}</span>
+          </div>
+        </div>
+
+        <div className="highlights-toolbar">
+          <div className="collection-row team-filter-row">
+            <button
+              type="button"
+              className={`team-filter-chip ${selectedTeamFilter === "all" ? "team-filter-chip-active" : ""}`}
+              onClick={() => setSelectedTeamFilter("all")}
+            >
+              {t.postMatch.allTeams}
+            </button>
+            <button
+              type="button"
+              className={`team-filter-chip ${selectedTeamFilter === "rosa" ? "team-filter-chip-active" : ""}`}
+              onClick={() => setSelectedTeamFilter("rosa")}
+            >
+              {t.postMatch.winningPairOnly}
+            </button>
+            <button
+              type="button"
+              className={`team-filter-chip ${selectedTeamFilter === "rivals" ? "team-filter-chip-active" : ""}`}
+              onClick={() => setSelectedTeamFilter("rivals")}
+            >
+              {t.postMatch.oppositionOnly}
+            </button>
+          </div>
+
+          <div className="highlights-toolbar-controls">
+            <label className="sort-select-wrap">
+              <span>{t.postMatch.sortBy}</span>
+              <select
+                className="sort-select"
+                value={highlightSort}
+                onChange={(event) => setHighlightSort(event.target.value as "priority" | "timeline")}
+              >
+                <option value="priority">{t.postMatch.sortPriority}</option>
+                <option value="timeline">{t.postMatch.sortTimeline}</option>
+              </select>
+            </label>
+
+            <label className="sort-select-wrap">
+              <span>{t.postMatch.shotSelectLabel}</span>
+              <select className="sort-select" value={resolvedSelectedShot} onChange={(event) => setSelectedShot(event.target.value)}>
+                <option value="all">{t.postMatch.allShots}</option>
+                {shotOptions.map((shot) => (
+                  <option key={shot} value={shot}>
+                    {shot}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className="collection-row">
@@ -335,15 +577,7 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
               key={filter.id}
               type="button"
               className={`filter-chip ${selectedFilter === filter.id ? "filter-chip-active" : ""}`}
-              onClick={() => {
-                const nextHighlights =
-                  filter.id === "all"
-                    ? matchData.highlights
-                    : matchData.highlights.filter((highlight) => highlight.filter === filter.id);
-
-                setSelectedFilter(filter.id);
-                setSelectedHighlightId(nextHighlights[0].id);
-              }}
+              onClick={() => setSelectedFilter(filter.id)}
             >
               <span>{filter.label}</span>
               <strong>{filter.count}</strong>
@@ -351,57 +585,75 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
           ))}
         </div>
 
-        <div className="highlights-grid">
-          {filteredHighlights.map((highlight) => (
-            <article
-              key={highlight.id}
-              id={`highlight-${highlight.id}`}
-              className={`surface panel highlight-card ${selectedHighlight.id === highlight.id ? "highlight-card-active" : ""}`}
-            >
-              <button type="button" className="highlight-card-main" onClick={() => jumpToHighlight(highlight, true)}>
-                <div className={`highlight-preview highlight-preview-${highlight.team}`}>
-                  <div className="highlight-preview-topline">
-                    <span>{highlight.setLabel}</span>
-                    <span>{highlight.duration}</span>
-                  </div>
-                  <span className="highlight-preview-play" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M9 7.5 17 12l-8 4.5V7.5Z" fill="currentColor" />
-                    </svg>
-                  </span>
-                  <div className="highlight-preview-body">
-                    <div className="highlight-preview-copy">
-                      <strong>{highlight.shot}</strong>
-                      <small>{t.postMatch.clipPreviewPlaceholder}</small>
+        {filteredHighlights.length ? (
+          <div className="highlights-grid">
+            {filteredHighlights.map((highlight) => {
+              const snippetClassifications = getSnippetClassifications(highlight, language);
+
+              return (
+                <article
+                  key={highlight.id}
+                  id={`highlight-${highlight.id}`}
+                  className={`surface panel highlight-card ${selectedHighlight.id === highlight.id ? "highlight-card-active" : ""}`}
+                >
+                  <button type="button" className="highlight-card-main" onClick={() => jumpToHighlight(highlight, true)}>
+                    <div className={`highlight-preview highlight-preview-${highlight.team}`}>
+                      <div className="highlight-preview-topline">
+                        <span>{highlight.setLabel}</span>
+                        <span>{highlight.duration}</span>
+                      </div>
+                      <span className="highlight-preview-play" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="M9 7.5 17 12l-8 4.5V7.5Z" fill="currentColor" />
+                        </svg>
+                      </span>
+                      <div className="highlight-preview-body">
+                        <div className="highlight-preview-copy">
+                          <strong>{highlight.shot}</strong>
+                          <small>{t.postMatch.clipPreviewPlaceholder}</small>
+                        </div>
+                      </div>
+                      <div className="snippet-classification-row snippet-classification-row--preview">
+                        {snippetClassifications.map((item) => (
+                          <span key={`${highlight.id}-${item}`} className="snippet-classification-chip">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="highlight-preview-track">
+                        <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="highlight-preview-track">
-                    <span className="highlight-preview-progress" style={{ width: `${Math.max(18, highlight.cue * 100)}%` }} />
-                  </div>
-                </div>
 
-                <div className="highlight-topline">
-                  <span className={`team-tag team-tag-${highlight.team}`}>{teamStyles[highlight.team].label}</span>
-                  <span>{highlight.timeLabel}</span>
-                </div>
-                <h3>{highlight.title}</h3>
-                <p>{highlight.summary}</p>
-                <div className="highlight-footer">
-                  <span>{highlight.score}</span>
-                  <span>{highlight.situation}</span>
-                  <span>{highlight.confidence}%</span>
-                </div>
-              </button>
+                    <div className="highlight-topline">
+                      <span className={`team-tag team-tag-${highlight.team}`}>{teamStyles[highlight.team].label}</span>
+                      <span>{highlight.timeLabel}</span>
+                    </div>
+                    <h3>{highlight.title}</h3>
+                    <p>{highlight.summary}</p>
+                    <div className="highlight-footer">
+                      <span>{highlight.score}</span>
+                      <span>{highlight.situation}</span>
+                      <span>{highlight.confidence}%</span>
+                    </div>
+                  </button>
 
-              <div className="share-action-row share-action-row--card">
-                <span>{t.postMatch.shareSelectedClip}</span>
-                <ShareIconButton mode="copy" label={copied ? t.common.copied : t.common.copyLink} active={copied} onClick={() => void handleShare(highlight, "copy")} />
-                <ShareIconButton mode="whatsapp" label={t.common.whatsapp} onClick={() => void handleShare(highlight, "whatsapp")} />
-                <ShareIconButton mode="x" label={t.common.x} onClick={() => void handleShare(highlight, "x")} />
-              </div>
-            </article>
-          ))}
-        </div>
+                  <div className="share-action-row share-action-row--card">
+                    <span>{t.postMatch.shareSelectedClip}</span>
+                    <ShareIconButton mode="copy" label={copied ? t.common.copied : t.common.copyLink} active={copied} onClick={() => void handleShare(highlight, "copy")} />
+                    <ShareIconButton mode="whatsapp" label={t.common.whatsapp} onClick={() => void handleShare(highlight, "whatsapp")} />
+                    <ShareIconButton mode="x" label={t.common.x} onClick={() => void handleShare(highlight, "x")} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <article className="surface panel empty-state">
+            <h3>{t.postMatch.noClipsForFilterTitle}</h3>
+            <p>{t.postMatch.noClipsForFilterDescription}</p>
+          </article>
+        )}
       </section>
 
       <section className="section dashboard-section" id="statistics">
@@ -409,6 +661,24 @@ export default function PostMatchDashboard({ language, setLanguage, theme, setTh
           <span className="eyebrow">{t.postMatch.statsEyebrow}</span>
           <h2>{t.postMatch.statsTitle}</h2>
           <p>{t.postMatch.statsDescription}</p>
+        </div>
+
+        <div className="at-a-glance-grid">
+          <article className="surface panel at-a-glance-card">
+            <span>{t.postMatch.winners}</span>
+            <strong>{winnersDelta > 0 ? `+${winnersDelta}` : winnersDelta}</strong>
+            <small>{teamStyles.rosa.label}</small>
+          </article>
+          <article className="surface panel at-a-glance-card">
+            <span>{t.postMatch.unforcedErrors}</span>
+            <strong>{ueDelta > 0 ? `+${ueDelta}` : ueDelta}</strong>
+            <small>{teamStyles.rosa.label}</small>
+          </article>
+          <article className="surface panel at-a-glance-card">
+            <span>{t.postMatch.netConversion}</span>
+            <strong>{netDelta > 0 ? `+${netDelta}%` : `${netDelta}%`}</strong>
+            <small>{teamStyles.rosa.label}</small>
+          </article>
         </div>
 
         <div className="statistics-grid dashboard-stats-grid">

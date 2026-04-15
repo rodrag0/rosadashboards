@@ -559,6 +559,58 @@ button {
   gap: 18px;
 }
 
+.selected-navigation {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.selected-navigation span {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.selected-navigation-button {
+  min-height: 38px;
+  padding-inline: 12px;
+}
+
+.selected-navigation-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.snippet-classification-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.snippet-classification-row--preview {
+  margin-top: 2px;
+}
+
+.snippet-classification-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .selected-tags {
   gap: 8px;
 }
@@ -594,6 +646,74 @@ button {
 
 .section-heading {
   margin-bottom: 24px;
+}
+
+.highlights-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.highlights-toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.team-filter-row {
+  gap: 8px;
+}
+
+.team-filter-chip {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: transform var(--transition), background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.team-filter-chip:hover,
+.team-filter-chip:focus-visible {
+  transform: translateY(-1px);
+}
+
+.team-filter-chip-active {
+  color: white;
+  border-color: rgba(255, 10, 140, 0.34);
+  background: rgba(255, 10, 140, 0.16);
+  box-shadow: 0 14px 30px rgba(255, 10, 140, 0.14);
+}
+
+.sort-select-wrap {
+  display: inline-grid;
+  gap: 6px;
+  min-width: 190px;
+}
+
+.sort-select-wrap span {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sort-select {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--soft-block);
+  color: var(--text);
 }
 
 .collection-row {
@@ -734,11 +854,20 @@ button {
   margin: 0;
   font-size: 1.28rem;
   letter-spacing: -0.03em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .highlight-card p {
   margin: 0;
   color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 4.2em;
 }
 
 .highlight-card-active {
@@ -770,6 +899,38 @@ button {
     "comparison momentum"
     "shot insight";
   align-items: start;
+}
+
+.at-a-glance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.at-a-glance-card {
+  display: grid;
+  gap: 4px;
+}
+
+.at-a-glance-card span {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.at-a-glance-card strong {
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.05;
+}
+
+.at-a-glance-card small {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .comparison-panel {
@@ -1366,6 +1527,14 @@ button {
     width: 100%;
   }
 
+  .context-demo-link {
+    gap: 8px;
+  }
+
+  .context-demo-link .pill {
+    width: 100%;
+  }
+
   .control-select {
     min-height: 32px;
     padding-inline: 12px 34px;
@@ -1476,6 +1645,19 @@ button {
   gap: 18px;
 }
 
+.context-demo-link {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.context-demo-link span {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
 .dashboard-summary-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1536,6 +1718,20 @@ button {
   text-align: left;
   display: grid;
   gap: 16px;
+}
+
+.empty-state {
+  display: grid;
+  gap: 12px;
+}
+
+.empty-state h3,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state p {
+  color: var(--text-dim);
 }
 
 .selected-actions {
@@ -1647,6 +1843,12 @@ button {
   line-height: 1.2;
 }
 
+.player-metrics strong,
+.player-bars strong {
+  font-size: clamp(1rem, 2.1vw, 1.18rem);
+  line-height: 1.1;
+}
+
 .player-keyline {
   min-height: 0;
 }
@@ -1660,6 +1862,8 @@ button {
 :root[data-theme="light"] .button.secondary,
 :root[data-theme="light"] .pill,
 :root[data-theme="light"] .filter-chip,
+:root[data-theme="light"] .team-filter-chip,
+:root[data-theme="light"] .snippet-classification-chip,
 :root[data-theme="light"] .player-switch,
 :root[data-theme="light"] .share-chip,
 :root[data-theme="light"] .score-team strong,
@@ -1676,6 +1880,10 @@ button {
 :root[data-theme="light"] .share-chip--success {
   background: rgba(255, 10, 140, 0.1);
   color: #8f0a54;
+}
+
+:root[data-theme="light"] .sort-select {
+  background: rgba(17, 20, 26, 0.05);
 }
 
 :root[data-theme="light"] .topnav a:hover,
@@ -1724,6 +1932,10 @@ button {
   .dashboard-summary-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .at-a-glance-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 920px) {
@@ -1740,6 +1952,31 @@ button {
   .dashboard-summary-strip,
   .player-mix {
     grid-template-columns: 1fr;
+  }
+
+  .highlights-toolbar {
+    align-items: stretch;
+  }
+
+  .highlights-toolbar-controls {
+    width: 100%;
+  }
+
+  .sort-select-wrap {
+    width: 100%;
+  }
+
+  .selected-navigation {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .selected-navigation span {
+    text-align: left;
+  }
+
+  .snippet-classification-row {
+    gap: 6px;
   }
 
   .share-action-row span {
